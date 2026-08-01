@@ -39,7 +39,11 @@
   .top .sbox .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--dim);display:flex}
   .top .sbox .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;
        border-radius:7px;color:var(--sub);font-size:16px}
-  .stamp{margin-left:auto;font-size:12px;color:var(--dim);white-space:nowrap}
+  .navlink{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;
+           border:1px solid var(--bd);border-radius:var(--r);font-size:13.5px;font-weight:600;
+           color:var(--tx);white-space:nowrap;flex:0 0 auto}
+  .navlink:hover{border-color:var(--pt);color:var(--pt-d);background:var(--pt-w)}
+  .stamp{font-size:12px;color:var(--dim);white-space:nowrap}
 
   /* ── 요약 스트립 */
   .strip{background:var(--card);border-bottom:1px solid var(--bd)}
@@ -127,10 +131,11 @@
     .fbtn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 13px;border:1px solid var(--bd);
           border-radius:var(--r);background:var(--card);font-size:13.5px;font-weight:700;color:var(--tx)}
     .fbtn[aria-expanded="true"]{border-color:var(--pt);background:var(--pt-w);color:var(--pt-d)}
-    .top-in{height:56px;gap:10px;padding:0 16px}
+    .top-in{height:56px;gap:8px;padding:0 14px}
     .top .sbox{display:none}
     .logo b{font-size:16px}
-    .stamp{font-size:11.5px}
+    .navlink{height:34px;padding:0 10px;font-size:12.5px;gap:5px}
+    .stamp{font-size:11px;line-height:1.25;text-align:right;max-width:72px;white-space:normal}
     .msearch{display:block;padding:0 16px 12px;background:var(--card);border-bottom:1px solid var(--bd)}
     .strip-in{padding:11px 16px;gap:0;justify-content:space-between}
     .strip .m{flex-direction:column;align-items:center;gap:1px;flex:1}
@@ -173,6 +178,10 @@
     <input id="q" type="search" placeholder="학교명 · 직종 · 과목 검색" autocomplete="off">
     <button class="clr" id="clr" hidden aria-label="검색어 지우기">&times;</button>
   </div>
+  <a class="navlink" href="boards.html" title="수집 대상 게시판 103곳을 직접 확인">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+    <span>원본 게시판</span></a>
   <span class="stamp" id="stamp"></span>
 </div></header>
 
