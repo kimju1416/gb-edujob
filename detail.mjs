@@ -43,8 +43,12 @@ const addDays = (d,n) => new Date(Date.parse(d)+n*864e5).toISOString().slice(0,1
 const src = JSON.parse(await fs.readFile('jobs-raw.json','utf8'));
 const items = src.items;
 console.error(`상세 ${items.length}건 수집 시작...`);
-let ok=0, nodl=0;
-for (let i=0;i<items.length;i++){
+let ok=0, nodl=0, done=0;
+const CONC = 4;                 // 순차 처리는 해외에서 18분 넘게 걸린다
+let cursor = 0;
+async function worker(){
+ while (cursor < items.length) {
+  const i = cursor++;
   const it=items[i];
   // 일시적인 네트워크 실패로 마감일을 통째로 잃지 않도록 한 번 더 시도한다
   for (let attempt=0; attempt<2; attempt++){
@@ -61,12 +65,14 @@ for (let i=0;i<items.length;i++){
       break;
     }catch(e){
       it.err = e.message;
-      if (attempt === 0) await sleep(1500);
+      if (attempt === 0) await sleep(1200);
     }
   }
-  if (i%50===0) process.stderr.write(`${i} `);
-  await sleep(220);
+  if (++done % 100 === 0) process.stderr.write(`${done} `);
+  await sleep(120);
+ }
 }
+await Promise.all(Array.from({length:CONC}, worker));
 console.error('');
 await fs.writeFile('jobs-detail.json', JSON.stringify(items,null,2));
 console.log(`마감일 확보 ${ok}건 / 못 찾음 ${nodl}건 / 오류 ${items.filter(x=>x.err).length}건`);

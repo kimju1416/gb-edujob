@@ -10,6 +10,9 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 25          # 한 요청이 느려져 무한정 매달리는 것을 막는다
+    env:
+      SKIP_DISCOVER: '1'         # 게시판 발견은 boards.json 캐시로 대체 (해외에서 자주 실패)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
