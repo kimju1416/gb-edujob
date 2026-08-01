@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>경북에듀잡 · 경북 학교 채용정보</title>
+<meta name="description" content="경상북도교육청과 도내 22개 교육지원청의 채용 공고를 매일 모아 보여줍니다. 기간제교원·강사·교육공무직 자리를 한 화면에서.">
+<meta property="og:title" content="경북에듀잡 · 경북 학교 채용정보">
+<meta property="og:description" content="흩어진 교육청 채용공고를 한 곳에. 마감임박순으로 정리해 드립니다.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231E3A8A'/%3E%3Cpath d='M16 8.2L25.8 12.8 16 17.4 6.2 12.8 16 8.2z' fill='white'/%3E%3Cpath d='M10.6 15.1v5.2c0 1.75 2.42 3.16 5.4 3.16s5.4-1.41 5.4-3.16v-5.2' stroke='%2393C5FD' stroke-width='2.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --pt:#2563EB; --pt-d:#1D4ED8; --pt-w:#EFF5FF; --pt-b:#BFD5FA;
+    --bg:#F7F9FC; --card:#FFF; --bd:#E5EAF1; --bd-s:#EDF1F6;
+    --tx:#111C2E; --sub:#5B6B85; --dim:#94A3B8;
+    --urg:#DC2626; --urg-w:#FEF0F0; --warn:#B45309; --warn-w:#FEF6E7;
+    --r:10px; --r-l:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:Pretendard,-apple-system,sans-serif;
+       font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+  /* ── 헤더 */
+  .top{background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:30}
+  .top-in{max-width:1120px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:18px}
+  .logo{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .logo svg{display:block}
+  .logo b{font-size:17px;font-weight:800;letter-spacing:-.03em}
+  .logo b em{font-style:normal;color:var(--pt)}
+  .top .sbox{flex:1;max-width:460px;position:relative}
+  .top .sbox input{width:100%;height:40px;padding:0 36px 0 38px;border:1px solid var(--bd);
+       border-radius:var(--r);background:var(--bg);font-size:14.5px;font-family:inherit;color:var(--tx)}
+  .top .sbox input:focus{outline:0;background:#fff;border-color:var(--pt);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+  .top .sbox .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--dim);display:flex}
+  .top .sbox .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;
+       border-radius:7px;color:var(--sub);font-size:16px}
+  .stamp{margin-left:auto;font-size:12px;color:var(--dim);white-space:nowrap}
+
+  /* ── 요약 스트립 */
+  .strip{background:var(--card);border-bottom:1px solid var(--bd)}
+  .strip-in{max-width:1120px;margin:0 auto;padding:11px 20px;display:flex;gap:26px;flex-wrap:wrap}
+  .strip .m{display:flex;align-items:baseline;gap:6px}
+  .strip .m b{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .strip .m span{font-size:12.5px;color:var(--sub)}
+  .strip .m.u b{color:var(--urg)}
+
+  /* ── 본문 2단 */
+  .page{max-width:1120px;margin:0 auto;padding:20px;display:grid;grid-template-columns:212px 1fr;gap:22px;align-items:start}
+  .side{position:sticky;top:76px}
+  .fbox{background:var(--card);border:1px solid var(--bd);border-radius:var(--r-l);overflow:hidden}
+  .fbox h3{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.04em;padding:12px 14px 8px}
+  .fbox ul{list-style:none;padding:0 8px 10px}
+  .fbox li button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+       height:32px;padding:0 8px;border-radius:8px;font-size:13.5px;color:var(--tx);text-align:left}
+  .fbox li button:hover{background:var(--bg)}
+  .fbox li button[aria-pressed="true"]{background:var(--pt-w);color:var(--pt-d);font-weight:700}
+  .fbox li button i{font-style:normal;font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .fbox li button[aria-pressed="true"] i{color:var(--pt)}
+  .fbox+.fbox{margin-top:12px}
+  .fmore{width:100%;height:30px;font-size:12.5px;color:var(--sub);font-weight:600}
+  .fmore:hover{color:var(--pt)}
+
+  /* ── 툴바 */
+  .tool{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .tool .n{font-size:14px;color:var(--sub)}
+  .tool .n b{color:var(--tx);font-weight:700}
+  .tool .right{display:flex;align-items:center;gap:8px}
+  .seg{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+  .seg button{height:34px;padding:0 13px;font-size:13.5px;color:var(--sub);border-right:1px solid var(--bd)}
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed="true"]{background:var(--pt);color:#fff;font-weight:700}
+  .tgl{height:34px;padding:0 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--card);
+       font-size:13px;color:var(--sub)}
+  .tgl[aria-pressed="true"]{border-color:var(--pt);background:var(--pt-w);color:var(--pt-d);font-weight:700}
+
+  /* ── 카드 그리드 */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .job{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:var(--r-l);
+       padding:15px 16px 13px;display:flex;flex-direction:column;transition:border-color .12s, box-shadow .12s}
+  .job:hover{border-color:var(--pt-b);box-shadow:0 2px 10px rgba(17,28,46,.06)}
+  .job:active{border-color:var(--pt)}
+  .jt::after{content:"";position:absolute;inset:0;z-index:1}   /* 카드 전체를 탭 영역으로 */
+  .go{position:relative;z-index:2}
+  .job.exp{opacity:.55}
+  .jtop{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .dday{height:24px;padding:0 9px;border-radius:7px;font-size:12.5px;font-weight:800;letter-spacing:-.01em;
+        display:inline-flex;align-items:center;background:#F1F5F9;color:var(--sub);flex:0 0 auto}
+  .dday.u{background:var(--urg-w);color:var(--urg)}
+  .dday.w{background:var(--warn-w);color:var(--warn)}
+  .dday.q{background:#F1F5F9;color:var(--dim);font-weight:700}
+  .jdate{font-size:12px;color:var(--dim);margin-left:auto;white-space:nowrap}
+  .jt{font-size:15px;font-weight:600;line-height:1.45;word-break:keep-all;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:43px}
+  .jtags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .tag{height:22px;padding:0 8px;border-radius:6px;background:var(--pt-w);color:var(--pt-d);
+       font-size:11.5px;font-weight:700;display:inline-flex;align-items:center}
+  .tag.g{background:#F1F5F9;color:var(--sub)}
+  .jfoot{display:flex;align-items:center;gap:8px;margin-top:13px;padding-top:11px;border-top:1px solid var(--bd-s)}
+  .place{font-size:13px;color:var(--sub);font-weight:600;display:flex;align-items:center;gap:4px}
+  .go{margin-left:auto;height:34px;padding:0 14px;border-radius:9px;background:var(--pt);color:#fff;
+      font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+  .go:hover{background:var(--pt-d)}
+
+  .more{width:100%;height:50px;margin-top:14px;border:1px solid var(--bd);background:var(--card);
+        border-radius:var(--r);font-size:15px;font-weight:700;color:var(--tx)}
+  .more:hover{border-color:var(--pt);color:var(--pt)}
+  .empty{grid-column:1/-1;background:var(--card);border:1px solid var(--bd);border-radius:var(--r-l);
+         padding:44px 16px;text-align:center;color:var(--sub);font-size:14px}
+  .empty button{margin-top:14px;height:40px;padding:0 18px;border:1px solid var(--bd);border-radius:var(--r);
+        background:#fff;font-size:14px;font-weight:700}
+
+  .foot{max-width:1120px;margin:0 auto;padding:26px 20px 60px;font-size:12.5px;color:var(--sub);line-height:1.75}
+  .foot b{color:var(--tx)}
+
+  /* 모바일 필터 토글 */
+  .fbtn{display:none}
+  @media(max-width:900px){
+    body{padding-bottom:env(safe-area-inset-bottom)}
+    .page{grid-template-columns:1fr;gap:14px;padding:14px 16px}
+    .side{position:static;display:none}
+    .side.open{display:block}
+    .fbtn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 13px;border:1px solid var(--bd);
+          border-radius:var(--r);background:var(--card);font-size:13.5px;font-weight:700;color:var(--tx)}
+    .fbtn[aria-expanded="true"]{border-color:var(--pt);background:var(--pt-w);color:var(--pt-d)}
+    .top-in{height:56px;gap:10px;padding:0 16px}
+    .top .sbox{display:none}
+    .logo b{font-size:16px}
+    .stamp{font-size:11.5px}
+    .msearch{display:block;padding:0 16px 12px;background:var(--card);border-bottom:1px solid var(--bd)}
+    .strip-in{padding:11px 16px;gap:0;justify-content:space-between}
+    .strip .m{flex-direction:column;align-items:center;gap:1px;flex:1}
+    .strip .m b{font-size:20px}
+    .strip .m span{font-size:11.5px}
+    .grid{grid-template-columns:1fr}
+    /* 터치 타깃 확대 */
+    .fbox li button{height:42px;font-size:14.5px}
+    .fbox h3{font-size:12.5px;padding:13px 14px 6px}
+    .fmore{height:40px;font-size:13.5px}
+    .seg button{height:38px;padding:0 14px;font-size:14px}
+    .tgl{height:38px;font-size:13.5px}
+    .tool{gap:10px}
+    .tool .right{width:100%;gap:6px}
+    .tool .seg{flex:1} .tool .seg button{flex:1}
+    .job{padding:14px 15px 12px}
+    .jt{font-size:15.5px;min-height:45px}
+    .go{height:38px;padding:0 15px;font-size:14px}
+    .more{height:52px}
+  }
+  @media(min-width:901px){ .msearch{display:none} }
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="logo" href="./" aria-label="경북에듀잡 홈">
+    <!-- 학사모: 교육의 보편적 상징 -->
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="9" fill="#1E3A8A"/>
+      <path d="M16 8.2L25.8 12.8 16 17.4 6.2 12.8 16 8.2z" fill="#fff"/>
+      <path d="M10.6 15.1v5.2c0 1.75 2.42 3.16 5.4 3.16s5.4-1.41 5.4-3.16v-5.2"
+            stroke="#93C5FD" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M25.8 12.8v4.6" stroke="#93C5FD" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <b>경북<em>에듀잡</em></b>
+  </a>
+  <div class="sbox">
+    <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+    <input id="q" type="search" placeholder="학교명 · 직종 · 과목 검색" autocomplete="off">
+    <button class="clr" id="clr" hidden aria-label="검색어 지우기">&times;</button>
+  </div>
+  <span class="stamp" id="stamp"></span>
+</div></header>
+
+<div class="msearch">
+  <div class="sbox" style="position:relative">
+    <span class="ic" style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94A3B8;display:flex">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+    <input id="q2" type="search" placeholder="학교명 · 직종 · 과목 검색" autocomplete="off"
+      style="width:100%;height:42px;padding:0 14px 0 38px;border:1px solid #E5EAF1;border-radius:10px;
+             background:#F7F9FC;font-size:14.5px;font-family:inherit">
+  </div>
+</div>
+
+<div class="strip"><div class="strip-in">
+  <div class="m"><b id="s1">0</b><span>모집 중</span></div>
+  <div class="m u"><b id="s2">0</b><span>3일 내 마감</span></div>
+  <div class="m"><b id="s3">0</b><span>오늘 등록</span></div>
+</div></div>
+
+<div class="page">
+  <aside class="side" id="side">
+    <div class="fbox"><h3>직종</h3><ul id="kinds"></ul></div>
+    <div class="fbox"><h3>지역</h3><ul id="orgs"></ul><button class="fmore" id="orgMore" hidden></button></div>
+  </aside>
+
+  <main>
+    <div class="tool">
+      <span class="n" id="count"></span>
+      <div class="right">
+        <button class="fbtn" id="fbtn" aria-expanded="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>필터</button>
+        <div class="seg" id="sorts"></div>
+        <button class="tgl" id="showExp" aria-pressed="false">마감 포함</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <button class="more" id="more" hidden>더 보기</button>
+  </main>
+</div>
+
+<p class="foot">
+  경상북도교육청과 도내 22개 교육지원청 채용 게시판을 매일 모아 보여줍니다. 카드를 누르면 <b>원문 공고</b>로 이동합니다.<br>
+  <b>지원 전 반드시 원문에서 마감일과 제출서류를 확인하세요.</b> 마감일이 공고에 명시되지 않은 경우 &lsquo;마감일 확인&rsquo;으로 표시되며, 이 페이지는 안내용입니다.
+</p>
+
+<script>
+let D;
+const $=id=>document.getElementById(id);
+const SORTS=[['due','마감임박'],['new','최신']];
+const S={ kind:'', org:'', sort:'due', exp:false, q:'' };
+let hits=[], shown=0, TODAY, orgOpen=false;
+const ORG_FOLD=10;
+const dayDiff=(a,b)=>Math.round((Date.parse(a+'T00:00:00Z')-Date.parse(b+'T00:00:00Z'))/864e5);
+const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+function prep(){
+  TODAY=D.today;
+  for(const it of D.items){
+    it._dd = it.dl ? dayDiff(it.dl,TODAY) : null;
+    it._txt = (it.t+' '+it.o+' '+it.k.join(' ')+' '+(it.lv||'')).toLowerCase();
+  }
+  $('stamp').textContent = D.built.slice(0,10)+' 갱신';
+  const live=D.items.filter(x=>!x.x);
+  $('s1').textContent=live.length.toLocaleString();
+  $('s2').textContent=live.filter(x=>x._dd!==null&&x._dd<=3).length;
+  $('s3').textContent=D.items.filter(x=>x.d===TODAY).length;
+}
+function row(sel,val,label,n){
+  return `<li><button data-${sel}="${esc(val)}">${esc(label)}<i>${n}</i></button></li>`;
+}
+function drawFilters(){
+  const pool=D.items.filter(x=>S.exp||!x.x);
+  const kc={}; for(const x of pool) for(const k of x.k) kc[k]=(kc[k]||0)+1;
+  $('kinds').innerHTML = row('k','','전체',pool.length) +
+    Object.entries(kc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>row('k',k,k,v)).join('');
+  const oc={}; for(const x of pool) oc[x.o]=(oc[x.o]||0)+1;
+  const list=Object.entries(oc).sort((a,b)=>b[1]-a[1]);
+  const vis=orgOpen?list:list.slice(0,ORG_FOLD);
+  $('orgs').innerHTML = row('o','','전체',pool.length) + vis.map(([k,v])=>row('o',k,k,v)).join('');
+  const rest=list.length-ORG_FOLD;
+  $('orgMore').hidden = rest<=0;
+  $('orgMore').textContent = orgOpen ? '접기' : `+ ${rest}개 지역 더보기`;
+  for(const b of $('kinds').querySelectorAll('button')) b.setAttribute('aria-pressed', b.dataset.k===S.kind);
+  for(const b of $('orgs').querySelectorAll('button'))  b.setAttribute('aria-pressed', b.dataset.o===S.org);
+  $('sorts').innerHTML = SORTS.map(([v,l])=>`<button data-s="${v}">${l}</button>`).join('');
+  for(const b of $('sorts').children) b.setAttribute('aria-pressed', b.dataset.s===S.sort);
+  $('showExp').setAttribute('aria-pressed', S.exp);
+}
+// 모바일에서 필터를 고르면 패널을 닫아 바로 결과가 보이게 한다
+const isMobile = () => window.matchMedia('(max-width:900px)').matches;
+function closePanel(){ if(!isMobile()) return;
+  $('side').classList.remove('open'); $('fbtn').setAttribute('aria-expanded','false');
+  window.scrollTo({top:0,behavior:'smooth'}); }
+$('kinds').onclick=e=>{const b=e.target.closest('button'); if(!b)return; S.kind=b.dataset.k;
+  drawFilters(); save(); run(); closePanel();};
+$('orgs').onclick =e=>{const b=e.target.closest('button'); if(!b)return; S.org=b.dataset.o;
+  drawFilters(); save(); run(); closePanel();};
+$('orgMore').onclick=()=>{orgOpen=!orgOpen; drawFilters();};
+$('sorts').onclick=e=>{const b=e.target.closest('button'); if(!b)return; S.sort=b.dataset.s; drawFilters(); save(); run();};
+$('showExp').onclick=()=>{S.exp=!S.exp; drawFilters(); save(); run();};
+$('fbtn').onclick=()=>{const o=$('side').classList.toggle('open'); $('fbtn').setAttribute('aria-expanded',o);};
+let t;
+function onSearch(v){ clearTimeout(t); t=setTimeout(()=>{ S.q=v.trim().toLowerCase();
+  $('clr').hidden=!S.q; save(); run(); },170); }
+$('q').oninput=e=>{ $('q2').value=e.target.value; onSearch(e.target.value); };
+$('q2').oninput=e=>{ $('q').value=e.target.value; onSearch(e.target.value); };
+$('clr').onclick=()=>{ $('q').value=''; $('q2').value=''; S.q=''; $('clr').hidden=true; save(); run(); };
+
+function save(){
+  const p=new URLSearchParams();
+  if(S.kind)p.set('k',S.kind); if(S.org)p.set('o',S.org);
+  if(S.sort!=='due')p.set('s',S.sort); if(S.exp)p.set('e','1'); if(S.q)p.set('q',S.q);
+  history.replaceState(null,'',p.toString()?'?'+p:location.pathname);
+}
+function load(){
+  const p=new URLSearchParams(location.search);
+  if(p.has('k'))S.kind=p.get('k'); if(p.has('o'))S.org=p.get('o');
+  if(SORTS.some(x=>x[0]===p.get('s')))S.sort=p.get('s');
+  if(p.get('e')==='1')S.exp=true;
+  if(p.has('q')){S.q=p.get('q').toLowerCase(); $('q').value=p.get('q'); $('q2').value=p.get('q'); $('clr').hidden=false;}
+}
+function run(){
+  hits=D.items.filter(x=>{
+    if(!S.exp&&x.x) return false;
+    if(S.kind&&!x.k.includes(S.kind)) return false;
+    if(S.org&&x.o!==S.org) return false;
+    if(S.q&&!x._txt.includes(S.q)) return false;
+    return true;
+  });
+  if(S.sort==='due') hits.sort((a,b)=>(a._dd===null)-(b._dd===null)||(a._dd-b._dd)||b.d.localeCompare(a.d));
+  else hits.sort((a,b)=>b.d.localeCompare(a.d));
+  $('count').innerHTML = hits.length ? `공고 <b>${hits.length.toLocaleString()}</b>건` : '';
+  shown=0; $('grid').innerHTML='';
+  if(!hits.length){
+    $('grid').innerHTML='<div class="empty">조건에 맞는 공고가 없습니다.<br>'+
+      '<button onclick="resetAll()">필터 초기화</button></div>';
+    $('more').hidden=true; return;
+  }
+  render();
+}
+function resetAll(){
+  Object.assign(S,{kind:'',org:'',sort:'due',exp:false,q:''});
+  $('q').value=''; $('q2').value=''; $('clr').hidden=true; drawFilters(); save(); run();
+}
+function ddayHtml(x){
+  if(x._dd===null) return `<span class="dday q">마감일 확인</span>`;
+  if(x._dd<0) return `<span class="dday">마감됨</span>`;
+  const c = x._dd<=2?'u' : x._dd<=6?'w' : '';
+  return `<span class="dday ${c}">${x._dd===0?'오늘 마감':'D-'+x._dd}</span>`;
+}
+function render(){
+  const frag=document.createDocumentFragment();
+  const end=Math.min(shown+30,hits.length);
+  for(;shown<end;shown++){
+    const x=hits[shown];
+    const el=document.createElement('article');
+    el.className='job'+(x.x?' exp':'');
+    el.innerHTML =
+      `<div class="jtop">${ddayHtml(x)}`+
+      `<span class="jdate">${x.dl?x.dl.slice(5).replace('-','.')+' 마감':x.d.slice(5).replace('-','.')+' 등록'}</span></div>`+
+      `<a class="jt" href="${x.u}" target="_blank" rel="noopener">${esc(x.t)}</a>`+
+      `<div class="jtags">`+
+        x.k.slice(0,2).map(k=>`<span class="tag">${esc(k)}</span>`).join('')+
+        (x.lv?`<span class="tag g">${esc(x.lv)}</span>`:'')+
+      `</div>`+
+      `<div class="jfoot"><span class="place">`+
+        `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">`+
+        `<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`+
+        `${esc(x.o)}</span>`+
+        `<a class="go" href="${x.u}" target="_blank" rel="noopener">공고 보기`+
+        `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"`+
+        ` stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></a></div>`;
+    frag.appendChild(el);
+  }
+  $('grid').appendChild(frag);
+  $('more').hidden = shown>=hits.length;
+}
+$('more').onclick=render;
+function boot(){ prep(); load(); drawFilters(); run(); }
+fetch('jobs.json').then(r=>r.json()).then(d=>{D=d; boot();})
+  .catch(()=>{$('grid').innerHTML='<div class="empty">데이터를 불러오지 못했습니다.</div>';});
+</script>
+</body>
+</html>
