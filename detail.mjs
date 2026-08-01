@@ -49,7 +49,7 @@ for (let i=0;i<items.length;i++){
   // 일시적인 네트워크 실패로 마감일을 통째로 잃지 않도록 한 번 더 시도한다
   for (let attempt=0; attempt<2; attempt++){
     try{
-      const html = await (await fetch(it.url,{headers:UA,signal:AbortSignal.timeout(20000)})).text();
+      const html = await (await fetch(it.url,{headers:UA,signal:AbortSignal.timeout(40000)})).text();
       const body = flat(html);
       // 1) 게시판이 제공하는 마감일자 필드가 가장 믿을 만하다
       const m = body.match(/마감\s?일자\s*(\d{4})[./-](\d{2})[./-](\d{2})/);

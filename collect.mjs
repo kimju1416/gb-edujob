@@ -7,7 +7,12 @@ const strip=s=>s.replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'
 const POOL = /인력풀|인력뱅크|지원신청|지원 요청|자료실|한눈에|구직/;   // 구직자 등록·안내 게시판은 제외
 
 async function listBoard(url){
-  const html = await (await fetch(url,{headers:UA,signal:AbortSignal.timeout(20000)})).text();
+  // 해외(GitHub Actions)에서는 응답이 느리거나 간헐적으로 끊긴다. 넉넉한 타임아웃 + 재시도.
+  let html;
+  for (let a=0; a<3; a++){
+    try{ html = await (await fetch(url,{headers:UA,signal:AbortSignal.timeout(45000)})).text(); break; }
+    catch(e){ if (a===2) throw e; await sleep(2000*(a+1)); }
+  }
   const rows=[];
   for (const tr of html.split(/<tr[ >]/).slice(1)) {
     const a = tr.match(/<a[^>]*data-id="(\d+)"[^>]*>([\s\S]*?)<\/a>/);
@@ -20,11 +25,41 @@ async function listBoard(url){
   return [...new Map(rows.map(r=>[r.id,r])).values()];
 }
 
+// 게시판 목록: 캐시(boards.json)가 1차 소스.
+// 자동 발견은 기관 사이트 23곳을 열어야 해서 해외에서 자주 실패한다(실측: 103개 → 13개).
+// 캐시를 먼저 쓰고, 발견에 성공하면 새 게시판만 얹는다.
+async function loadBoards(){
+  let cached = [];
+  try {
+    cached = JSON.parse(await fs.readFile('boards.json','utf8'));
+    console.error(`게시판 캐시 ${cached.length}개 로드`);
+  } catch(e){ console.error('게시판 캐시 없음 — 자동 발견에만 의존한다'); }
+  const byOrg = new Map();
+  for (const b of cached) {
+    if (!byOrg.has(b.sysid)) byOrg.set(b.sysid, new Map());
+    byOrg.get(b.sysid).set(b.bbsId, b);
+  }
+  let added = 0;
+  for (const [sysid, name] of Object.entries(GB)) {
+    try {
+      const found = (await findBoards(sysid)).filter(b=>!POOL.test(b.label));
+      if (!byOrg.has(sysid)) byOrg.set(sysid, new Map());
+      for (const b of found) if (!byOrg.get(sysid).has(b.bbsId)) {
+        byOrg.get(sysid).set(b.bbsId, { sysid, org:name, mi:b.mi, bbsId:b.bbsId, label:b.label });
+        added++;
+      }
+    } catch(e){ /* 발견 실패는 캐시로 메운다 */ }
+  }
+  if (added) console.error(`자동 발견으로 새 게시판 ${added}개 추가`);
+  return [...byOrg.entries()].map(([sysid, m]) => [sysid, [...m.values()]]);
+}
+
 const all=[]; const boardStat=[];
-for (const [sysid,name] of Object.entries(GB)) {
-  const boards = (await findBoards(sysid)).filter(b=>!POOL.test(b.label));
+for (const [sysid, boards] of await loadBoards()) {
+  const name = GB[sysid] || sysid;
   const seen=new Set();
-  for (const b of boards) {
+  for (const b0 of boards) {
+    const b = { ...b0, url:`https://www.gbe.kr/${sysid}/na/ntt/selectNttList.do?mi=${b0.mi}&bbsId=${b0.bbsId}` };
     if (seen.has(b.bbsId)) continue; seen.add(b.bbsId);
     try{
       const rows = await listBoard(b.url);
