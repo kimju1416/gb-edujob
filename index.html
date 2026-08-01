@@ -364,23 +364,13 @@ function render(){
 }
 $('more').onclick=render;
 function boot(){ prep(); load(); drawFilters(); run(); }
-// 수집은 GAS(구글 서버)가 맡는다 — 경북교육청이 해외 요청을 강하게 제한해
-// GitHub Actions에서는 수집의 78%가 실패했다.
-// GAS가 응답하지 않으면 저장소에 함께 올려둔 마지막 스냅샷(jobs.json)으로 물러난다.
-const GAS_URL='https://script.google.com/macros/s/AKfycbzIH70LrNRrvl-Y7HuIiyRJpwq3nmRJbs8nga5eXsSeodndqBR3DJmQ3o-9G2jGLPDy/exec';
-function useData(d, src){
+// 데이터는 저장소의 jobs.json에서 바로 읽는다(0.3초).
+// 수집은 GAS가 맡지만 GAS 웹앱으로 직접 서빙하면 30~50초가 걸리고 큰 응답은 실패한다
+// (내부 읽기는 79ms인데 응답 단계가 느리다). 그래서 서빙은 정적 파일로 되돌렸다.
+fetch('jobs.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
   if(!d || !d.items || !d.items.length) throw new Error('빈 데이터');
   D=d; boot();
-  if(src==='snapshot'){
-    const p=document.createElement('p');
-    p.style.cssText='margin-top:10px;font-size:12.5px;color:#B45309';
-    p.textContent='실시간 갱신에 연결하지 못해 마지막 저장본을 보여주고 있습니다.';
-    document.querySelector('.foot').prepend(p);
-  }
-}
-fetch(GAS_URL,{cache:'no-store'}).then(r=>r.json()).then(d=>useData(d,'live'))
-  .catch(()=> fetch('jobs.json').then(r=>r.json()).then(d=>useData(d,'snapshot')))
-  .catch(()=>{$('grid').innerHTML='<div class="empty">데이터를 불러오지 못했습니다.</div>';});
+}).catch(()=>{$('grid').innerHTML='<div class="empty">데이터를 불러오지 못했습니다.</div>';});
 </script>
 </body>
 </html>
