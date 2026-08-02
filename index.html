@@ -255,18 +255,22 @@ function prep(){
 function row(sel,val,label,n){
   return `<li><button data-${sel}="${esc(val)}">${esc(label)}<i>${n}</i></button></li>`;
 }
+// 정렬 규칙: 건수순은 매번 순서가 바뀌어 찾기 어렵다. 자리를 고정한다.
+//  직종 — 가나다순, '기타'만 맨 뒤
+//  지역 — 경북교육청(도 전체)을 맨 위에 두고 나머지는 가나다순
+const ko=(a,b)=>String(a).localeCompare(String(b),'ko');
+const kindSort=(a,b)=>(a==='기타')-(b==='기타') || ko(a,b);
+const orgSort =(a,b)=>(a!=='경북교육청')-(b!=='경북교육청') || ko(a,b);
 function drawFilters(){
   const pool=D.items.filter(x=>S.exp||!x.x);
   const kc={}; for(const x of pool) for(const k of x.k) kc[k]=(kc[k]||0)+1;
   $('kinds').innerHTML = row('k','','전체',pool.length) +
-    Object.entries(kc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>row('k',k,k,v)).join('');
+    Object.entries(kc).sort((a,b)=>kindSort(a[0],b[0])).map(([k,v])=>row('k',k,k,v)).join('');
   const oc={}; for(const x of pool) oc[x.o]=(oc[x.o]||0)+1;
-  const list=Object.entries(oc).sort((a,b)=>b[1]-a[1]);
-  const vis=orgOpen?list:list.slice(0,ORG_FOLD);
+  const list=Object.entries(oc).sort((a,b)=>orgSort(a[0],b[0]));
+  const vis=list;                    // 23개뿐이라 접지 않는다. 가나다순이라 접으면 뒤쪽 지역이 묻힌다
   $('orgs').innerHTML = row('o','','전체',pool.length) + vis.map(([k,v])=>row('o',k,k,v)).join('');
-  const rest=list.length-ORG_FOLD;
-  $('orgMore').hidden = rest<=0;
-  $('orgMore').textContent = orgOpen ? '접기' : `+ ${rest}개 지역 더보기`;
+  $('orgMore').hidden = true;
   for(const b of $('kinds').querySelectorAll('button')) b.setAttribute('aria-pressed', b.dataset.k===S.kind);
   for(const b of $('orgs').querySelectorAll('button'))  b.setAttribute('aria-pressed', b.dataset.o===S.org);
   $('sorts').innerHTML = SORTS.map(([v,l])=>`<button data-s="${v}">${l}</button>`).join('');
