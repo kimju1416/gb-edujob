@@ -118,8 +118,16 @@
   .empty button{margin-top:14px;height:40px;padding:0 18px;border:1px solid var(--bd);border-radius:var(--r);
         background:#fff;font-size:14px;font-weight:700}
 
-  .foot{max-width:1120px;margin:0 auto;padding:26px 20px 60px;font-size:12.5px;color:var(--sub);line-height:1.75}
+  .foot{max-width:1120px;margin:0 auto;padding:26px 20px 14px;font-size:12.5px;color:var(--sub);line-height:1.75}
   .foot b{color:var(--tx)}
+  .contact{max-width:1120px;margin:0 auto;padding:14px 20px 60px;border-top:1px solid var(--bd);
+           display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .contact .ig{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;
+       border:1px solid var(--bd);border-radius:var(--r);background:var(--card);color:var(--tx)}
+  .contact .ig:hover{border-color:#C13584;color:#C13584}
+  .contact .ig b{font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+  .contact span{font-size:12.5px;color:var(--sub)}
+  @media(max-width:520px){ .contact{padding:14px 16px 48px;gap:9px} .contact span{font-size:12px} }
 
   /* 모바일 필터 토글 */
   .fbtn{display:none}
@@ -229,6 +237,19 @@
   <b>지원 전 반드시 원문에서 마감일과 제출서류를 확인하세요.</b> 마감일이 공고에 명시되지 않은 경우 &lsquo;마감일 확인&rsquo;으로 표시되며, 이 페이지는 안내용입니다.<br>
   직접 확인하려면 <a href="boards.html" style="color:#2563EB;font-weight:600">원본 게시판 103곳 바로가기</a>
 </p>
+
+<div class="contact">
+  <a class="ig" href="https://instagram.com/kimju.zip" target="_blank" rel="noopener">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/>
+      <circle cx="12" cy="12" r="4.2"/>
+      <circle cx="17.6" cy="6.4" r="1.15" fill="currentColor" stroke="none"/>
+    </svg>
+    <b>@kimju.zip</b>
+  </a>
+  <span>공고 오류·누락 제보나 문의는 이쪽으로 주세요</span>
+</div>
 
 <script>
 let D;
