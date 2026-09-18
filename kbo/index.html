@@ -8,6 +8,7 @@
 <meta property="og:title" content="KBO 10구단 학생 단체관람 신청 총정리" />
 <meta property="og:description" content="전국 10개 프로야구장, 학교 단체관람 신청 방법을 한 장에. 신청 창구·접수 시기·최소 인원·문의처·공문 문구까지." />
 <meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9A%BE%3C/text%3E%3C/svg%3E">
 <!-- Pretendard 웹폰트: 이 줄이 있어야 의도한 글씨체로 보입니다. 절대 지우지 마세요. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
@@ -175,6 +176,81 @@
     .m-toc .toc a:hover{background:var(--clay-soft)}
   }
 </style>
+
+<style>
+  /* ===== 야구장 테마 : 잔디 그린 · 흙 · 야구공 스티치 레드 ===== */
+  :root{
+    --clay:#C8402F; --clay-dark:#9C2C1E; --clay-soft:#F8E6E1;
+    --bg:#F6F3EC; --line:#E4DCCF;
+    --turf:#2E7A4C; --turf-dark:#245F3C; --turf-soft:#E3EFE7;
+    --night:#12301E; --dirt:#B07A4E; --gold:#F2B441;
+    --good:#2E7A4C; --good-soft:#E3EFE7;
+    --code-bg:#12301E;
+  }
+  body{background:
+    radial-gradient(900px 420px at 50% -120px, #EFEADF 0%, rgba(239,234,223,0) 70%),
+    var(--bg)}
+
+  /* 사이드바 로고를 야구공으로 */
+  .brand .logo{background:#fff;border:1.5px solid var(--line)}
+  .brand .logo svg{width:24px;height:24px}
+
+  /* 히어로: 잔디 모잉 스트라이프 + 조명 */
+  .hero{position:relative;overflow:hidden;border-bottom:4px solid var(--dirt);
+    background:
+      radial-gradient(70% 90% at 78% 0%, rgba(242,180,65,.20) 0%, rgba(242,180,65,0) 60%),
+      linear-gradient(180deg, rgba(18,48,30,.86) 0%, rgba(18,48,30,.94) 100%),
+      repeating-linear-gradient(112deg, #2E7A4C 0 46px, #276843 46px 92px)}
+  .hero .inner{position:relative;z-index:2}
+  .hero h1{color:#fff}
+  .hero h1 .hl{color:var(--gold)}
+  .hero .lede{color:rgba(255,255,255,.80)}
+  .hero .kicker{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);color:#fff;backdrop-filter:blur(3px)}
+  .hero .kicker .pulse{background:var(--gold);box-shadow:0 0 0 0 rgba(242,180,65,.6)}
+  .hero .chip{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.24);color:#fff}
+  .ballmark{position:absolute;right:-70px;top:-58px;width:330px;height:330px;opacity:.13;z-index:1;pointer-events:none}
+  @media(max-width:920px){.ballmark{right:-110px;top:-70px;width:250px;height:250px}}
+
+  /* 섹션 번호 = 야구공 (흰 공 + 빨간 스티치) */
+  .sec-num{background:#fff;color:var(--clay-dark);border:1.5px solid var(--line);position:relative;
+    box-shadow:0 2px 6px rgba(18,48,30,.12)}
+  .sec-num::before,.sec-num::after{content:"";position:absolute;top:5px;height:30px;width:11px}
+  .sec-num::before{left:2px;border-left:2.5px solid var(--clay);border-radius:70% 0 0 70%/50% 0 0 50%}
+  .sec-num::after{right:2px;border-right:2.5px solid var(--clay);border-radius:0 70% 70% 0/0 50% 50% 0}
+
+  /* 구단 제목: 팀 컬러 세로바 */
+  h3.club{display:flex;align-items:center;gap:11px;border-left:6px solid var(--tc,var(--clay));
+    padding:7px 0 7px 13px;margin:34px 0 12px;background:linear-gradient(90deg,rgba(0,0,0,.028),rgba(0,0,0,0) 60%);
+    border-radius:0 10px 10px 0}
+  h3.club .cap{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--tc,var(--clay));color:#fff;
+    font-size:12.5px;font-weight:800;display:grid;place-items:center;letter-spacing:-.04em}
+  h3.club .sub{font-weight:600;font-size:13.5px;color:var(--ink-soft)}
+
+  /* 표: 전광판 헤더 */
+  .compare thead th{background:var(--night)}
+  .compare tbody th{background:var(--turf-soft);color:var(--turf-dark)}
+
+  /* 확인 등급 배지 */
+  .vb{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:800;white-space:nowrap}
+  .vb.ok{background:var(--turf-soft);color:var(--turf-dark);border:1px solid #C6DFCE}
+  .vb.mid{background:#FBEFDD;color:#A8681F;border:1px solid #F0DCBE}
+  .vb.no{background:#EFEBE4;color:#6E6459;border:1px solid var(--line)}
+  .compare td .vb{margin-right:6px}
+
+  /* 전광판 박스 */
+  .board{background:var(--night);border-radius:16px;padding:20px 22px;margin:18px 0;color:#EAF3EC;
+    box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.08)}
+  .board b{display:block;color:var(--gold);font-size:12.5px;letter-spacing:.06em;margin-bottom:12px;font-weight:800}
+  .board .row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.14);font-size:14px}
+  .board .row:last-child{border-bottom:0}
+  .board .row span:first-child{color:rgba(234,243,236,.72)}
+  .board .row span:last-child{font-weight:700;text-align:right}
+
+  .code-top{background:rgba(255,255,255,.04)}
+  .tipcard:hover{border-color:var(--turf)}
+  footer{border-top:4px solid var(--dirt)}
+</style>
+
 </head>
 <body>
 <div id="prog"></div>
@@ -185,9 +261,10 @@
   <aside class="sidebar">
     <div class="brand">
       <span class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round">
-          <circle cx="12" cy="12" r="8.4"/>
-          <path d="M6.6 5.6c2.2 2 3.4 4 3.4 6.4s-1.2 4.4-3.4 6.4 M17.4 5.6c-2.2 2-3.4 4-3.4 6.4s1.2 4.4 3.4 6.4"/>
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10.2" fill="#fff" stroke="#E4DCCF" stroke-width="1.2"/>
+          <path d="M6.4 4.2c2.4 2.6 3.6 5.2 3.6 7.8s-1.2 5.2-3.6 7.8 M17.6 4.2c-2.4 2.6-3.6 5.2-3.6 7.8s1.2 5.2 3.6 7.8"
+                stroke="#C8402F" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </span>
       <div><b>KBO 단체관람 신청</b><span>전국 10개 구장 · 학교 단체 기준</span></div>
@@ -204,9 +281,10 @@
       <a href="#extra"><span class="num">＋</span>연락처 한눈에</a>
     </nav>
     <div class="legend">
-      <b>📌 박스 색 안내</b>
-      <span class="e">💡</span> 꿀팁 &nbsp;·&nbsp; <span class="e">✅</span> 체크<br/>
-      <span class="e">⚠️</span> 주의 &nbsp;·&nbsp; <span class="e">🔐</span> 중요<br/>
+      <b>⚾ 확인 등급</b>
+      <span class="e">✅</span> 구단 공식 안내에서 확인<br/>
+      <span class="e">🔶</span> 기사·2차 자료 기반<br/>
+      <span class="e">❔</span> 미공개 — 전화 확인 필요<br/>
       검은 상자는 <b style="display:inline;color:var(--clay-dark)">복사</b> 버튼으로 바로 복사돼요.
     </div>
   </aside>
@@ -214,6 +292,14 @@
   <main class="main">
 
     <header class="hero">
+      <svg class="ballmark" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <circle cx="100" cy="100" r="88" fill="#fff"/>
+          <path d="M42 24c22 26 32 50 32 76s-10 50-32 76 M158 24c-22 26-32 50-32 76s10 50 32 76"
+                stroke="#C8402F" stroke-width="5" stroke-linecap="round"/>
+          <path d="M52 40l-13 7 M52 62l-14 4 M52 84l-15 2 M52 106l-15-1 M52 128l-14-4 M52 150l-13-7
+                   M148 40l13 7 M148 62l14 4 M148 84l15 2 M148 106l15-1 M148 128l14-4 M148 150l13-7"
+                stroke="#C8402F" stroke-width="4" stroke-linecap="round"/>
+        </svg>
       <div class="inner">
         <span class="kicker"><span class="pulse"></span> 2026 시즌 기준 · 학교 단체관람</span>
         <h1>KBO 10구단 <span class="hl">학생 단체관람</span> 신청 총정리</h1>
@@ -250,6 +336,15 @@
 
         <p class="body">프로야구 단체관람은 <strong>일반 예매와 창구가 완전히 다릅니다.</strong> 티켓링크·인터파크에서 좌석을 하나씩 잡는 게 아니라, 구단 단체관람 담당자에게 신청서를 넣거나 전화로 접수한 뒤 <strong>회신을 받아야 확정</strong>되는 구조예요.</p>
 
+        <div class="board">
+          <b>⚾ 확인된 기준선</b>
+          <div class="row"><span>최소 인원</span><span>LG 20명 · NC 20명(좌석선점) / 50명(할인) · 삼성 50석</span></div>
+          <div class="row"><span>가장 이른 마감</span><span>삼성 — 경기 2주 전 수요일</span></div>
+          <div class="row"><span>가장 늦은 접수</span><span>SSG — 경기 5일 전 ~ 1일 전</span></div>
+          <div class="row"><span>학교 할인 명시</span><span>SSG (초·중·고 학생 할인가)</span></div>
+          <div class="row"><span>우천 걱정 없음</span><span>키움 — 고척스카이돔 (유일한 돔)</span></div>
+        </div>
+
         <h3><span class="e">🧭</span>모든 구단에 공통되는 4가지</h3>
         <div class="tips">
           <div class="tipcard"><span class="te">📞</span><h4>창구가 따로 있다</h4><p>단체관람 전용 전화·전용 신청 페이지가 대부분 따로 있습니다. 일반 예매처에 물어보면 시간만 갑니다.</p></div>
@@ -273,7 +368,7 @@
           </tbody>
         </table>
 
-        <div class="note info"><span class="ic">ℹ️</span><div><b>경북 학교라면</b><p>대구 라이온즈파크가 이동 시간·비용 면에서 압도적입니다. 다만 단체 마감이 <strong>경기 2주 전 수요일</strong>로 이른 편이라, 결재 일정을 거꾸로 계산해서 움직여야 합니다.</p></div></div>
+        <div class="note info"><span class="ic">ℹ️</span><div><b>경북 학교라면</b><p>대구 라이온즈파크가 이동 시간·비용 면에서 압도적입니다. 다만 단체 마감이 <strong>경기 2주 전 수요일</strong>로 이른 편이라, 결재 일정을 거꾸로 계산해서 움직여야 합니다. 포항에서 열리는 삼성 홈경기는 기준이 따로 있으니(30석 이상·7일 전) 아래 삼성 항목을 확인하세요.</p></div></div>
       </section>
 
       <section id="s2">
@@ -282,69 +377,68 @@
           <div><h2>수도권 5구단</h2><p>두산 · LG · 키움 · SSG · kt wiz</p></div>
         </div>
 
-        <h3><span class="e">🐻</span>두산 베어스 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 잠실야구장 (서울 송파)</span></h3>
+        <h3 class="club" style="--tc:#1A1748"><span class="cap">두산</span>두산 베어스<span class="sub">· 잠실야구장 (서울 송파)</span></h3>
         <table class="compare">
           <tbody>
-            <tr><th>신청 창구</th><td>구단 홈페이지 <b>단체관람</b> 전용 페이지에서 신청</td></tr>
-            <tr><th>접수 시기</th><td>홈페이지 공지 확인 — 시즌마다 접수 시작일이 바뀝니다</td></tr>
-            <tr><th>인원·좌석</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>학교 단체</th><td>학생 요금 적용 여부는 상담 시 확인</td></tr>
+            <tr><th>신청 창구</th><td>구단 홈페이지 <b>단체관람</b> 전용 페이지 · 구단 콜센터/이메일 예약 방식으로 운영</td></tr>
+            <tr><th>예매처</th><td>2026 시즌 일반 예매는 <b>인터파크(NOL) 단독</b>. 단체는 예매처가 아닌 구단 창구로 문의</td></tr>
+            <tr><th>접수 시기</th><td>공개 정보 없음 — 홈페이지 공지·콜센터 확인</td></tr>
+            <tr><th>인원·좌석</th><td>공개 정보 없음</td></tr>
             <tr><th>문의</th><td><b>1844-1543</b> (구단 고객센터)</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.doosanbears.com/ticket/group" target="_blank" rel="noopener">doosanbears.com/ticket/group</a></td></tr>
+            <tr><th>확인 상태</th><td><span class="vb mid">🔶 2차 출처</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.doosanbears.com/ticket/group" target="_blank" rel="noopener">두산 단체관람 페이지</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">⚾</span>LG 트윈스 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 잠실야구장 (서울 송파)</span></h3>
+        <h3 class="club" style="--tc:#C30452"><span class="cap">LG</span>LG 트윈스<span class="sub">· 잠실야구장 (서울 송파)</span></h3>
         <table class="compare">
           <tbody>
-            <tr><th>신청 창구</th><td>구단 홈페이지 티켓 메뉴의 <b>단체 예매</b>, 또는 1:1 문의</td></tr>
-            <tr><th>접수 시기</th><td>홈페이지 공지 확인</td></tr>
-            <tr><th>인원·좌석</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>학교 단체</th><td>1:1 문의로 학생 단체 요금 문의 권장</td></tr>
-            <tr><th>문의</th><td>티켓링크 <b>1588-7890</b> → 2번(프로야구)</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.lgtwins.com/ticket/general" target="_blank" rel="noopener">lgtwins.com 티켓 안내</a></td></tr>
+            <tr><th>최소 인원</th><td><b>20명 이상</b></td></tr>
+            <tr><th>접수 시기</th><td>홈경기 <b>10일 전부터 선착순</b> (일부 안내는 14일 전 오전 10시 기준 — 시즌별로 달라 확인 필요)</td></tr>
+            <tr><th>대상 좌석</th><td>네이비석 · 외야 그린석</td></tr>
+            <tr><th>신청 방법</th><td>티켓링크 콜센터 <b>1588-7890</b> 또는 이메일 <b>membership@nhnlink.co.kr</b></td></tr>
+            <tr><th>이메일 기재</th><td>신청자명 · 단체명 · 연락처 · 희망 경기일자 · 좌석등급 · 예매 수량 → 순차적으로 유선 연락</td></tr>
+            <tr><th>확인 상태</th><td><span class="vb mid">🔶 2차 출처</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.lgtwins.com/ticket/general" target="_blank" rel="noopener">LG 티켓 안내</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🦸</span>키움 히어로즈 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 고척스카이돔 (서울 구로)</span></h3>
+        <h3 class="club" style="--tc:#570514"><span class="cap">키움</span>키움 히어로즈<span class="sub">· 고척스카이돔 (서울 구로)</span></h3>
         <table class="compare">
           <tbody>
             <tr><th>신청 창구</th><td>홈페이지 <b>단체관람 신청서</b> 온라인 제출</td></tr>
-            <tr><th>접수 시기</th><td>정규시즌 홈경기 한정 · <b>선착순</b>, 판매 가능 좌석 매진 시 접수 마감</td></tr>
+            <tr><th>접수 조건</th><td><b>정규시즌 홈경기 한정 · 선착순</b>, 판매 가능 좌석 매진 시 접수 마감</td></tr>
             <tr><th>확정 방식</th><td>신청만으로 좌석이 확보되지 않고, <b>1주일 이내 담당자가 개별 회신</b></td></tr>
-            <tr><th>단체 혜택</th><td>20명 이상 1루 구역 구매 시 전광판 환영 문구 / 50명 이상 1루 다크버건디·버건디 구역 구매 시 이닝 교체 때 단체 모습 송출</td></tr>
-            <tr><th>학교 단체</th><td>실내 돔구장이라 <b>우천 취소 걱정이 없습니다</b> — 날짜 확정이 중요한 학교 행사에 유리</td></tr>
+            <tr><th>단체 혜택</th><td>20명 이상 1루 구역 구매 시 전광판 환영 문구 · 50명 이상 1루 다크버건디·버건디 구역 구매 시 이닝 교체 때 단체 모습 송출</td></tr>
+            <tr><th>학교 단체</th><td>유일한 <b>돔구장 — 우천 취소가 없습니다</b>. 날짜를 못 미루는 학교 행사에 가장 안전</td></tr>
             <tr><th>문의</th><td><b>02-3660-1000</b></td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://heroesbaseball.co.kr/ticket/group/view.do" target="_blank" rel="noopener">heroesbaseball.co.kr 단체관람</a></td></tr>
+            <tr><th>확인 상태</th><td><span class="vb ok">✅ 공식 안내 확인</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://heroesbaseball.co.kr/ticket/group/view.do" target="_blank" rel="noopener">키움 단체관람</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🛬</span>SSG 랜더스 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 인천SSG랜더스필드 (인천 미추홀)</span></h3>
+        <h3 class="club" style="--tc:#CE0E2D"><span class="cap">SSG</span>SSG 랜더스<span class="sub">· 인천SSG랜더스필드 (인천 미추홀)</span></h3>
         <table class="compare">
           <tbody>
-            <tr><th>신청 창구</th><td>SSG.COM 고객센터 <b>1577-3419</b> → ARS 9번 → 상담원 연결 후 희망 일자·좌석·수량 <b>선착순</b> 접수</td></tr>
+            <tr><th>신청 방법</th><td>SSG.COM 고객센터 <b>1577-3419 → ARS 9번</b> → 상담원 연결 후 희망 일자·좌석·수량 <b>선착순</b> 접수</td></tr>
             <tr><th>접수 시기</th><td><b>경기 5일 전 ~ 1일 전</b>의 5일간 (상담·안내는 상시 가능)</td></tr>
-            <tr><th>학교 단체</th><td>학교 단체(초·중·고)는 <b>학생 할인가 적용</b> — 10개 구단 중 학교 기준이 가장 명확하게 공개돼 있습니다</td></tr>
-            <tr><th>일반 단체</th><td>기업 등 일반 단체는 좌석·인원 수에 따라 할인율이 달라집니다</td></tr>
-            <tr><th>수수료·취소</th><td>1매당 예매 수수료 1,000원 · <b>경기 당일 오전 10시까지</b> 취소 가능</td></tr>
-            <tr><th>단체 혜택</th><td>100인 이상 시 전광판 환영 문구 송출</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.ssglanders.com/game/group" target="_blank" rel="noopener">ssglanders.com/game/group</a></td></tr>
+            <tr><th>학교 단체</th><td>학교 단체(초·중·고)는 <b>학생 할인가 적용</b> — 10개 구단 중 학교 기준이 가장 명확하게 공개</td></tr>
+            <tr><th>일반 단체</th><td>기업 등은 좌석·인원 수에 따라 할인율이 달라짐</td></tr>
+            <tr><th>수수료·취소</th><td>1매당 예매 수수료 <b>1,000원</b> · <b>경기 당일 오전 10시까지</b> 취소 가능</td></tr>
+            <tr><th>단체 혜택</th><td>100인 이상 전광판 환영 문구 송출</td></tr>
+            <tr><th>확인 상태</th><td><span class="vb ok">✅ 공식 안내 확인</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.ssglanders.com/game/group" target="_blank" rel="noopener">SSG 단체관람 안내</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🧙</span>kt wiz <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 수원케이티위즈파크 (경기 수원)</span></h3>
+        <h3 class="club" style="--tc:#231F20"><span class="cap">kt</span>kt wiz<span class="sub">· 수원케이티위즈파크 (경기 수원)</span></h3>
         <table class="compare">
           <tbody>
             <tr><th>신청 창구</th><td>구단 홈페이지 <b>단체 관람 안내</b> 페이지</td></tr>
-            <tr><th>접수 시기</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>인원·좌석</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>학교 단체</th><td>경기 남부권 학교는 이동 거리가 가장 짧은 선택지</td></tr>
-            <tr><th>문의</th><td>티켓링크 <b>1588-7890</b> 또는 홈페이지 문의</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.ktwiz.co.kr/ticket/group" target="_blank" rel="noopener">ktwiz.co.kr/ticket/group</a></td></tr>
+            <tr><th>접수 시기</th><td>공개 정보 없음</td></tr>
+            <tr><th>인원·좌석</th><td>공개 정보 없음</td></tr>
+            <tr><th>문의</th><td>티켓링크 <b>1588-7890</b> (kt wiz 예매 대행) 또는 홈페이지 문의</td></tr>
+            <tr><th>확인 상태</th><td><span class="vb no">❔ 미확인 · 전화 확인 필요</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.ktwiz.co.kr/ticket/group" target="_blank" rel="noopener">kt wiz 단체 관람 안내</a></span></td></tr>
           </tbody>
         </table>
 
-        <div class="note tip"><span class="ic">💡</span><div><b>수도권에서 학교 단체로 가장 편한 곳</b><p><strong>SSG</strong>는 학교 단체(초·중·고) 학생 할인가가 공식 안내에 명시돼 있고, <strong>키움</strong>은 돔구장이라 우천 취소가 없습니다. 날짜를 못 미루는 학교 행사라면 고척이 안전합니다.</p></div></div>
+        <div class="note tip"><span class="ic">💡</span><div><b>수도권에서 학교 단체로 가장 편한 곳</b><p><strong>SSG</strong>는 학교 단체 학생 할인가가 공식 안내에 명시돼 있고, <strong>키움</strong>은 돔구장이라 우천 취소가 없습니다. <strong>LG</strong>는 최소 20명·이메일 접수로 절차가 가장 투명하게 공개된 편입니다.</p></div></div>
       </section>
 
       <section id="s3">
@@ -353,39 +447,41 @@
           <div><h2>영남 3구단</h2><p>삼성 · 롯데 · NC</p></div>
         </div>
 
-        <h3><span class="e">🦁</span>삼성 라이온즈 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 대구삼성라이온즈파크 (대구 수성)</span></h3>
+        <h3 class="club" style="--tc:#074CA1"><span class="cap">삼성</span>삼성 라이온즈<span class="sub">· 대구삼성라이온즈파크 (대구 수성)</span></h3>
         <table class="compare">
           <tbody>
-            <tr><th>신청 창구</th><td><b>전화 접수</b> — 1688-0747 (평일 10:00~17:00, 점심 12:00~13:00 제외)</td></tr>
+            <tr><th>신청 방법</th><td><b>전화 접수 — 1688-0747</b> (티켓링크 단체 전용) 평일 10:00~17:00, 점심 12:00~13:00 제외</td></tr>
             <tr><th>접수 마감</th><td>경기일 기준 <b>2주 전 수요일까지</b></td></tr>
             <tr><th>인원·한도</th><td>팀당 <b>50~200석</b> · 주말은 경기당 선착순 5개 팀 · 주중은 3,000석까지(일반예매 오픈 후에는 한도 없이 접수)</td></tr>
             <tr><th>대상 좌석</th><td>1루 내야지정석, 외야지정석, 중앙SKY 상단지정석, 1·3루 SKY 상단지정석 (U20~24구역 제외)</td></tr>
-            <tr><th>학교 단체</th><td>경북·대구 학교 기준 <b>1순위 선택지</b>. 마감이 2주 전이라 공문 결재 일정을 역산해야 합니다</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.samsunglions.com/intro/intro02.asp?act=view&idx=1017018" target="_blank" rel="noopener">삼성 라이온즈 단체관람 안내 공지</a></td></tr>
+            <tr><th>구단 문의</th><td><b>053-780-3300</b></td></tr>
+            <tr><th>포항 경기는 별도</th><td>포항야구장 개최 경기는 기준이 다릅니다 — <b>30석 이상</b>, 단체 한도 2,000석, <b>경기 7일 전까지</b> 접수, 예매 수수료 장당 1,000원</td></tr>
+            <tr><th>학교 단체</th><td>경북·대구 학교 기준 <b>1순위</b>. 다만 마감이 2주 전이라 공문 결재 일정을 역산해야 합니다</td></tr>
+            <tr><th>확인 상태</th><td><span class="vb ok">✅ 공식 안내 확인</span> <span style="font-size:12px;color:var(--ink-soft)">단, 구단 공지 작성일 2025-06-19 — 2026 시즌 변경 여부 확인 권장</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.samsunglions.com/intro/intro02.asp?act=view&idx=1017018" target="_blank" rel="noopener">삼성 단체관람 공지</a> · <a class="link" href="https://www.phsisul.org/sisul_6/sub/notice_view.do?prc=read&prcValue=15be9d51edd1802e5b19674d46ac3979" target="_blank" rel="noopener">포항 경기 안내</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🌊</span>롯데 자이언츠 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 사직야구장 (부산 동래)</span></h3>
+        <h3 class="club" style="--tc:#041E42"><span class="cap">롯데</span>롯데 자이언츠<span class="sub">· 사직야구장 (부산 동래)</span></h3>
         <table class="compare">
           <tbody>
             <tr><th>신청 창구</th><td>구단 홈페이지 티켓 메뉴 · 공식 예매처(ticket.giantsclub.com)</td></tr>
             <tr><th>문의</th><td><b>티켓콜센터 051-852-1982</b><br/>평일 09:00~18:00(점심 12:00~13:00) · 홈경기 토·일·공휴일 09:00~18:00 · <b>월요일 휴무</b></td></tr>
-            <tr><th>접수 시기</th><td>홈페이지·콜센터 확인 필요</td></tr>
-            <tr><th>인원·좌석</th><td>홈페이지·콜센터 확인 필요</td></tr>
+            <tr><th>접수 시기</th><td>공개 정보 없음 — 콜센터 확인</td></tr>
+            <tr><th>인원·좌석</th><td>공개 정보 없음. 일부 단체 좌석은 회원 전용 구매로 운영된다는 안내가 있어 확인 필요</td></tr>
             <tr><th>학교 단체</th><td>응원 열기가 가장 센 구장 — 학생 만족도는 높지만 소음·인솔 난이도도 함께 올라갑니다</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.giantsclub.com/html/?pcode=339" target="_blank" rel="noopener">giantsclub.com 사직구장 요금안내</a></td></tr>
+            <tr><th>확인 상태</th><td><span class="vb no">❔ 미확인 · 전화 확인 필요</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.giantsclub.com/html/?pcode=339" target="_blank" rel="noopener">롯데 티켓 안내</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🦕</span>NC 다이노스 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 창원NC파크 (경남 창원)</span></h3>
+        <h3 class="club" style="--tc:#315288"><span class="cap">NC</span>NC 다이노스<span class="sub">· 창원NC파크 (경남 창원)</span></h3>
         <table class="compare">
           <tbody>
-            <tr><th>신청 창구</th><td>구단 홈페이지 티켓 메뉴 · 구단 사무국 문의</td></tr>
+            <tr><th>신청 방법</th><td>구단 <b>앱·웹에서 신청</b></td></tr>
+            <tr><th>인원 기준</th><td><b>20인 이상</b> 좌석 선점 가능 · <b>50인 이상</b> 좌석 선점 + <b>할인</b> 적용</td></tr>
             <tr><th>문의</th><td><b>1644-9112</b> · communication@ncdinos.com</td></tr>
-            <tr><th>단체 혜택</th><td><b>평일 홈경기</b>에 50명 이상 사전 신청한 단체는 이닝 교대 때 전광판에 단체명·사진 노출, 경기 후 그라운드 기념촬영 진행 (시즌별 운영 상이)</td></tr>
-            <tr><th>접수 시기</th><td>홈페이지·전화 확인 필요</td></tr>
-            <tr><th>학교 단체</th><td>평일 낮·저녁 경기 단체 혜택이 뚜렷해 <b>학교 단체와 궁합이 좋은 편</b></td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.ncdinos.com/auth/ticket.do" target="_blank" rel="noopener">ncdinos.com 티켓 예매</a></td></tr>
+            <tr><th>단체 혜택</th><td>평일 홈경기에 50명 이상 사전 신청한 단체는 이닝 교대 때 전광판에 단체명·사진 노출, 경기 후 그라운드 기념촬영 진행 사례가 있습니다 (시즌별 운영 상이)</td></tr>
+            <tr><th>학교 단체</th><td>인원 기준이 20/50명으로 명확한 편이라 <b>학급·학년 단위와 맞아떨어집니다</b></td></tr>
+            <tr><th>확인 상태</th><td><span class="vb mid">🔶 2차 출처</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.ncdinos.com/auth/ticket.do" target="_blank" rel="noopener">NC 티켓 예매</a></span></td></tr>
           </tbody>
         </table>
 
@@ -398,30 +494,32 @@
           <div><h2>호남·충청 2구단</h2><p>KIA · 한화</p></div>
         </div>
 
-        <h3><span class="e">🐯</span>KIA 타이거즈 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 광주-기아 챔피언스필드 (광주 북구)</span></h3>
+        <h3 class="club" style="--tc:#EA0029"><span class="cap">KIA</span>KIA 타이거즈<span class="sub">· 광주-기아 챔피언스필드 (광주 북구)</span></h3>
         <table class="compare">
           <tbody>
             <tr><th>신청 창구</th><td>구단 홈페이지 티켓 메뉴의 <b>단체관람</b> · 홈페이지 1:1 문의</td></tr>
-            <tr><th>접수 시기</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>인원·좌석</th><td>홈페이지 확인 필요</td></tr>
-            <tr><th>문의</th><td>티켓링크 <b>1588-7890</b> 또는 구단 1:1 문의</td></tr>
-            <tr><th>학교 단체</th><td>1:1 문의 답변이 기록으로 남아 공문 첨부에 쓰기 좋습니다</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://tigers.co.kr/ticket/reservation" target="_blank" rel="noopener">tigers.co.kr 티켓 예매</a></td></tr>
+            <tr><th>접수 시기</th><td>공개 정보 없음</td></tr>
+            <tr><th>인원·좌석</th><td>공개 정보 없음</td></tr>
+            <tr><th>문의</th><td>티켓링크 <b>1588-7890</b> (KIA 예매 대행) 또는 구단 1:1 문의</td></tr>
+            <tr><th>학교 단체</th><td>1:1 문의 답변이 기록으로 남아 공문 첨부용으로 쓰기 좋습니다</td></tr>
+            <tr><th>확인 상태</th><td><span class="vb no">❔ 미확인 · 전화 확인 필요</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://tigers.co.kr/ticket/reservation" target="_blank" rel="noopener">KIA 티켓 예매</a></span></td></tr>
           </tbody>
         </table>
 
-        <h3><span class="e">🦅</span>한화 이글스 <span style="font-weight:600;font-size:14px;color:var(--ink-soft)">· 대전 한화생명볼파크 (대전 중구)</span></h3>
+        <h3 class="club" style="--tc:#FC4E00"><span class="cap">한화</span>한화 이글스<span class="sub">· 대전 한화생명볼파크 (대전 중구)</span></h3>
         <table class="compare">
           <tbody>
             <tr><th>신청 창구</th><td>구단 홈페이지 티켓 안내 · 티켓링크</td></tr>
             <tr><th>일반 예매</th><td>경기일 <b>7일 전 오전 11시</b> 오픈 (PC·모바일·전화)</td></tr>
-            <tr><th>접수 시기</th><td>단체 접수 기준은 홈페이지·전화 확인 필요</td></tr>
+            <tr><th>접수 시기</th><td>단체 기준은 공개 정보 없음</td></tr>
+            <tr><th>인원·좌석</th><td>공개 정보 없음</td></tr>
             <tr><th>문의</th><td>티켓링크 <b>1588-7890</b></td></tr>
             <tr><th>학교 단체</th><td>2025년 개장한 신구장이라 시설이 가장 깨끗합니다. 다만 인기가 높아 좌석 확보 경쟁이 셉니다</td></tr>
-            <tr><th>공식 페이지</th><td><a class="link" href="https://www.hanwhaeagles.co.kr/ticketInfo.do" target="_blank" rel="noopener">hanwhaeagles.co.kr 예매 안내</a></td></tr>
+            <tr><th>확인 상태</th><td><span class="vb no">❔ 미확인 · 전화 확인 필요</span><br/><span style="font-size:12.5px">출처: <a class="link" href="https://www.hanwhaeagles.co.kr/ticketInfo.do" target="_blank" rel="noopener">한화 예매 안내</a></span></td></tr>
           </tbody>
         </table>
 
+        <div class="note info"><span class="ic">ℹ️</span><div><b>이 두 구단은 단체 기준이 공개돼 있지 않습니다</b><p>홈페이지에 단체관람 메뉴는 있지만 인원·마감 수치가 공개되지 않았습니다. <strong>티켓링크 1588-7890</strong> 또는 구단 1:1 문의로 먼저 확인한 뒤 품의를 올리세요.</p></div></div>
       </section>
 
       <section id="s5">
@@ -434,7 +532,7 @@
           <div class="step"><h4>D-30 · 후보 날짜 3개 뽑기</h4><p>학사일정과 겹치지 않는 <strong>평일 경기</strong> 후보를 3개 정합니다. 주말·인기 카드는 단체 좌석이 거의 안 남습니다.</p></div>
           <div class="step"><h4>D-28 · 구단에 먼저 전화</h4><p>공문 쓰기 전에 <strong>가능 여부부터</strong> 확인합니다. 인원·좌석·1인 단가를 이때 받아 적어야 품의를 쓸 수 있습니다.</p></div>
           <div class="step"><h4>D-25 · 품의 상신</h4><p>구단에서 받은 <code>1인 단가 × 인원</code>으로 예산을 잡습니다. 버스 대절비는 별도 품의인지 학교 규정 확인.</p></div>
-          <div class="step"><h4>D-20 · 단체관람 정식 신청</h4><p>구단 신청서 제출 또는 전화 접수. <strong>회신을 받을 때까지는 확정이 아닙니다.</strong></p></div>
+          <div class="step"><h4>D-20 · 단체관람 정식 신청</h4><p>구단 신청서 제출 또는 전화 접수. <strong>회신을 받을 때까지는 확정이 아닙니다.</strong> (삼성은 이 시점이 이미 늦을 수 있으니 D-25에 접수)</p></div>
           <div class="step"><h4>D-14 · 확정 회신 + 가정통신문</h4><p>구단 확정 회신을 받은 뒤에 가정통신문을 배부합니다. 우천 취소 시 처리 방침을 반드시 같이 적으세요.</p></div>
           <div class="step"><h4>D-3 · 최종 인원·좌석 확인</h4><p>결석·전학으로 인원이 바뀌었으면 구단에 즉시 알립니다. 입장 방법(단체 입구·인솔자 수령 여부)도 이때 확인.</p></div>
           <div class="step"><h4>당일 · 인솔 동선 점검</h4><p>집결 장소, 화장실·매점 위치, 귀가 시각(경기 종료 전 퇴장 여부)을 학생들에게 먼저 공지합니다.</p></div>
@@ -471,7 +569,30 @@
 - 확정 회신은 언제쯤 받을 수 있나요?
 - 우천 취소 시 환불은 어떻게 처리되나요?
 - 결제 방법과 증빙(계산서·영수증) 발급이 가능한가요?
-- 당일 단체 입장 방법과 티켓 수령 장소는 어디인가요?</code></pre>
+- 당일 단체 입장 방법과 티켓 수령 장소는 어디인가요?
+- 전광판 환영 문구 송출이 가능한 인원인가요?</code></pre>
+        </div>
+
+        <h3><span class="e">📧</span>이메일로 접수할 때 (LG 방식)</h3>
+        <p class="body">LG는 이메일 접수를 받습니다. 다른 구단도 담당자 메일을 받으면 같은 양식으로 보내면 됩니다.</p>
+        <div class="code">
+          <div class="code-top"><span class="label"><span class="dots"><i></i><i></i><i></i></span> 단체관람 이메일 신청 양식</span><button class="copy">복사</button></div>
+          <pre><code>제목: [단체관람 신청] ○○중학교 / ○월 ○일 경기 / ○○명
+
+안녕하세요. ○○중학교 체육부 ○○○입니다.
+학생 단체관람을 아래와 같이 신청합니다.
+
+- 신청자명: ○○○ (직위: 교사)
+- 단체명: ○○중학교 ○학년
+- 연락처: 010-○○○○-○○○○ / 학교 ○○○-○○○○
+- 희망 경기일자: 2026년 ○월 ○일(○) ○○:○○
+  (2순위: ○월 ○일 / 3순위: ○월 ○일)
+- 좌석등급: ○○석 (배정 가능한 단체 구역으로 협의 희망)
+- 예매 수량: 학생 ○○매 + 인솔교사 ○매 = 총 ○○매
+- 결제 방식: 학교 예산 집행(증빙 발급 필요)
+
+학교 단체 학생 요금 적용 여부와 1인 단가,
+확정 가능 여부 회신 부탁드립니다. 감사합니다.</code></pre>
         </div>
 
         <h3><span class="e">📄</span>품의서에 들어갈 문구</h3>
@@ -487,7 +608,7 @@
 
 [산출 내역]
 - 입장료: ○○○원 × ○○명 = ○○○,○○○원
-- 예매 수수료: ○○○원 × ○○명 = ○○,○○○원
+- 예매 수수료: 1,000원 × ○○명 = ○○,○○○원
 - 전세버스 임차료: ○○○,○○○원 × ○대 = ○○○,○○○원
   합계: ○○○,○○○원
 
@@ -528,16 +649,16 @@
 
         <h3><span class="e">🚧</span>실제로 걸리는 것들</h3>
         <ul class="body">
-          <li><strong>주말 경기는 거의 안 됩니다</strong> — 삼성처럼 주말은 경기당 선착순 5개 팀만 받는 구단도 있습니다. 학교 단체는 사실상 평일 경기가 기본이라고 보는 게 맞습니다.</li>
-          <li><strong>신청했다고 자리가 잡힌 게 아닙니다</strong> — 키움은 신청 후 1주일 이내 개별 회신으로 확정됩니다. 회신 전에는 어떤 안내도 나가면 안 됩니다.</li>
-          <li><strong>좌석 구역을 고를 수 없습니다</strong> — 단체에 열어 주는 구역이 정해져 있습니다. 외야·상단석으로 배정되는 경우가 많습니다.</li>
-          <li><strong>예매 수수료가 붙습니다</strong> — SSG는 1매당 1,000원입니다. 인원이 많으면 금액이 커지니 품의 산출에 빼먹지 마세요.</li>
+          <li><strong>주말 경기는 거의 안 됩니다</strong> — 삼성은 주말 경기당 선착순 5개 팀만 받습니다. 학교 단체는 사실상 평일 경기가 기본이라고 보는 게 맞습니다.</li>
+          <li><strong>신청했다고 자리가 잡힌 게 아닙니다</strong> — 키움은 신청 후 1주일 이내 개별 회신, LG는 이메일 접수 후 순차 유선 연락입니다. 회신 전에는 어떤 안내도 나가면 안 됩니다.</li>
+          <li><strong>좌석 구역을 고를 수 없습니다</strong> — 단체에 열어 주는 구역이 정해져 있습니다. LG는 네이비석·외야 그린석, 삼성은 1루 내야지정석·외야지정석·SKY 상단 등입니다.</li>
+          <li><strong>예매 수수료가 붙습니다</strong> — SSG는 1매당 1,000원, 삼성 포항 경기도 장당 1,000원입니다. 인원이 많으면 금액이 커지니 품의 산출에 빼먹지 마세요.</li>
           <li><strong>인솔교사 요금 처리</strong> — 무료인지 학생가인지 일반가인지 구단마다 다릅니다. 반드시 통화 때 확인하세요.</li>
-          <li><strong>야간 경기 귀가 시간</strong> — 평일 18:30 경기는 종료가 21:30을 넘깁니다. 낮경기(주중 낮경기 편성일)를 잡거나, 경기 중반 퇴장을 미리 공지해야 합니다.</li>
-          <li><strong>정규시즌 홈경기만 가능</strong> — 시범경기·포스트시즌은 단체 접수를 안 받는 경우가 많습니다.</li>
+          <li><strong>야간 경기 귀가 시간</strong> — 평일 18:30 경기는 종료가 21:30을 넘깁니다. 낮경기를 잡거나, 경기 중반 퇴장을 미리 공지해야 합니다.</li>
+          <li><strong>정규시즌 홈경기만 가능</strong> — 키움은 명시적으로 정규시즌 홈경기 한정입니다. 시범경기·포스트시즌은 단체 접수를 안 받는 경우가 많습니다.</li>
         </ul>
 
-        <div class="note info"><span class="ic">ℹ️</span><div><b>덤으로 챙길 수 있는 것</b><p>인원이 모이면 <strong>전광판 환영 문구</strong>가 나옵니다. 키움은 20명(1루 구역), SSG는 100명, NC는 평일 경기 50명 이상이면 전광판 노출 + 경기 후 그라운드 기념촬영까지 진행한 적이 있습니다. 신청할 때 먼저 물어보세요 — 학생들 반응이 제일 좋은 포인트입니다.</p></div></div>
+        <div class="note info"><span class="ic">ℹ️</span><div><b>덤으로 챙길 수 있는 것</b><p>인원이 모이면 <strong>전광판 환영 문구</strong>가 나옵니다. 키움은 20명(1루 구역), SSG는 100명, NC는 평일 경기 50명 이상이면 전광판 노출 + 경기 후 그라운드 기념촬영까지 진행한 사례가 있습니다. 신청할 때 먼저 물어보세요 — 학생들 반응이 제일 좋은 포인트입니다.</p></div></div>
       </section>
 
       <section id="extra">
@@ -547,22 +668,29 @@
         </div>
 
         <table class="compare">
-          <thead><tr><th>구단</th><th>연락처</th><th>단체 신청 창구</th></tr></thead>
+          <thead><tr><th>구단</th><th>연락처</th><th>단체 신청 창구</th><th>확인</th></tr></thead>
           <tbody>
-            <tr><th>삼성</th><td><b>1688-0747</b><br/>평일 10~17시</td><td>전화 접수 (2주 전 수요일 마감)</td></tr>
-            <tr><th>두산</th><td><b>1844-1543</b></td><td>홈페이지 단체관람 페이지</td></tr>
-            <tr><th>LG</th><td>티켓링크 <b>1588-7890</b></td><td>홈페이지 단체 예매 / 1:1 문의</td></tr>
-            <tr><th>키움</th><td><b>02-3660-1000</b></td><td>홈페이지 온라인 신청서</td></tr>
-            <tr><th>SSG</th><td><b>1577-3419</b> (ARS 9번)</td><td>고객센터 전화 접수 (경기 5~1일 전)</td></tr>
-            <tr><th>kt wiz</th><td>티켓링크 <b>1588-7890</b></td><td>홈페이지 단체 관람 안내</td></tr>
-            <tr><th>롯데</th><td><b>051-852-1982</b><br/>월요일 휴무</td><td>티켓콜센터 / 공식 예매처</td></tr>
-            <tr><th>NC</th><td><b>1644-9112</b></td><td>홈페이지 / 구단 사무국</td></tr>
-            <tr><th>KIA</th><td>티켓링크 <b>1588-7890</b></td><td>홈페이지 단체관람 / 1:1 문의</td></tr>
-            <tr><th>한화</th><td>티켓링크 <b>1588-7890</b></td><td>홈페이지 티켓 안내</td></tr>
+            <tr><th>삼성</th><td><b>1688-0747</b> (단체)<br/>053-780-3300 (구단)</td><td>전화 접수 · 2주 전 수요일 마감 · 50~200석</td><td><span class="vb ok">✅</span></td></tr>
+            <tr><th>두산</th><td><b>1844-1543</b></td><td>홈페이지 단체관람 페이지 · 콜센터/이메일</td><td><span class="vb mid">🔶</span></td></tr>
+            <tr><th>LG</th><td><b>1588-7890</b><br/>membership@nhnlink.co.kr</td><td>10일 전부터 선착순 · <b>20명 이상</b></td><td><span class="vb mid">🔶</span></td></tr>
+            <tr><th>키움</th><td><b>02-3660-1000</b></td><td>홈페이지 온라인 신청서 · 1주일 내 회신</td><td><span class="vb ok">✅</span></td></tr>
+            <tr><th>SSG</th><td><b>1577-3419</b> (ARS 9번)</td><td>고객센터 전화 · 경기 5~1일 전 · 학교 할인</td><td><span class="vb ok">✅</span></td></tr>
+            <tr><th>kt wiz</th><td><b>1588-7890</b></td><td>홈페이지 단체 관람 안내</td><td><span class="vb no">❔</span></td></tr>
+            <tr><th>롯데</th><td><b>051-852-1982</b><br/>월요일 휴무</td><td>티켓콜센터 / 공식 예매처</td><td><span class="vb no">❔</span></td></tr>
+            <tr><th>NC</th><td><b>1644-9112</b></td><td>앱·웹 신청 · 20인 선점 / 50인 할인</td><td><span class="vb mid">🔶</span></td></tr>
+            <tr><th>KIA</th><td><b>1588-7890</b></td><td>홈페이지 단체관람 / 1:1 문의</td><td><span class="vb no">❔</span></td></tr>
+            <tr><th>한화</th><td><b>1588-7890</b></td><td>홈페이지 티켓 안내</td><td><span class="vb no">❔</span></td></tr>
           </tbody>
         </table>
 
-        <div class="note warn"><span class="ic">⚠️</span><div><b>정보 정확도에 대하여 — 꼭 읽어 주세요</b><p>이 페이지는 <strong>2026년 9월 18일</strong> 기준으로 각 구단 공개 자료를 모아 정리한 것입니다. 단체관람 규정은 <strong>시즌마다, 때로는 시즌 중에도 바뀝니다.</strong> 삼성·SSG·키움처럼 세부 조건이 공개된 구단은 수치까지 적었고, 나머지는 <strong>공식 페이지·전화 확인 필요</strong>로 남겨 두었습니다. <strong>실제 신청 전에는 반드시 구단에 직접 확인하세요.</strong></p></div></div>
+        <h3><span class="e">🔍</span>확인 등급이 무슨 뜻인가요</h3>
+        <ul class="body">
+          <li><span class="vb ok">✅ 공식 안내 확인</span> — 구단 공식 홈페이지·공지에 실린 수치입니다. 그대로 믿고 쓰셔도 됩니다. <strong>삼성·키움·SSG</strong></li>
+          <li><span class="vb mid">🔶 2차 출처</span> — 기사·정리 자료에서 확인한 내용입니다. 방향은 맞지만 시즌별로 달라질 수 있어 <strong>전화로 한 번 확인</strong>하세요. <strong>LG·NC·두산</strong></li>
+          <li><span class="vb no">❔ 미확인</span> — 단체 기준이 공개돼 있지 않습니다. 반드시 전화 문의로 시작하세요. <strong>kt wiz·롯데·KIA·한화</strong></li>
+        </ul>
+
+        <div class="note warn"><span class="ic">⚠️</span><div><b>정보 정확도에 대하여 — 꼭 읽어 주세요</b><p>이 페이지는 <strong>2026년 9월 18일</strong> 기준으로 각 구단 공개 자료를 모아 정리한 것입니다. 단체관람 규정은 <strong>시즌마다, 때로는 시즌 중에도 바뀝니다.</strong> 특히 삼성 항목은 <strong>2025년 6월 19일자 구단 공지</strong>가 근거라 2026 시즌 변경 여부를 확인하는 편이 안전합니다. <strong>실제 신청 전에는 반드시 구단에 직접 확인하세요.</strong></p></div></div>
 
         <p class="body">리그 전체 티켓 안내는 <a class="link" href="https://www.koreabaseball.com/kbo/league/map.aspx" target="_blank" rel="noopener">KBO 공식 티켓 안내</a>에서도 확인할 수 있습니다.</p>
       </section>
