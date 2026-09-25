@@ -350,8 +350,8 @@ function chars(str,x,y,size,t,t0,step,o={}){
 }
 // 1:32–1:48  정기연주회
 const YEARS=[['2021','창단연주회','신입생 35명의 첫 무대'],['2022','제1회 정기연주회',''],['2023','제2회 정기연주회',''],['2024','제3회 정기연주회',"'We Are United'"],['2025','제4회 정기연주회','2025. 12. 8.']];
-// 정기연주회 사진(concert25-01~05)이 있으면 그 사진을, 없으면 사진 대신 무대 조명 그래픽을 씁니다
-const CONCERT=()=>['concert25-01','concert25-02','concert25-03','concert25-04','concert25-05'].map(k=>has(k)?k:null);
+// 정기연주회 사진: 원본(concert25-*)이 있으면 먼저, 그다음 경북교육 웹진에 실린 연주회 사진(concert24-*)
+const CONC=()=>['concert25-01','concert25-02','concert25-03','concert25-04','concert25-05','concert25-06','concert25-07','concert24-c','concert24-a','concert24-d','concert24-b'].filter(has);
 function stageBg(t,dim=1){ // 막 + 스포트라이트 (킥에 맞춰 밝아짐)
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a0610');g.addColorStop(.62,'#0b0306');g.addColorStop(1,'#050505');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   ctx.save();ctx.globalAlpha=.5*dim;for(let i=0;i<24;i++){const x=i*80+40;const gg=ctx.createLinearGradient(x-40,0,x+40,0);gg.addColorStop(0,'rgba(0,0,0,.5)');gg.addColorStop(.5,'rgba(120,20,50,.35)');gg.addColorStop(1,'rgba(0,0,0,.5)');ctx.fillStyle=gg;ctx.fillRect(x-40,0,80,H*.66)}ctx.restore();
@@ -363,44 +363,50 @@ function stageBg(t,dim=1){ // 막 + 스포트라이트 (킥에 맞춰 밝아짐)
   for(let i=0;i<60;i++){const x=hash(i)*W,y=(hash(i+50)*H*.8+t*20*(.5+hash(i+9)))%(H*.8);circle(x,y,1.5+hash(i+3)*2,`rgba(255,255,255,${.25*dim})`)}
   ctx.restore();
 }
+// 흐린 배경 + 액자 카드 (작은 사진도 선명하게 보이도록)
+function blurBg(k,t,t0,dur){photo(k,t,t0,dur,{z0:1.15,z1:1.3,filter:'blur(22px) brightness(.42) saturate(1.2)'})}
+function card(k,t,t0,cx,cy,w,rot=0,o={}){
+  const im=IMG[k];if(!im)return;const h=w*im.height/im.width,q=eOutBack(prog(t,t0,o.d||.45));if(q<=0)return;
+  ctx.save();ctx.translate(cx+(o.from||0)*(1-q),cy);ctx.rotate(rot*q);ctx.scale(.6+.4*q,.6+.4*q);ctx.globalAlpha*=Math.min(1,q*2);
+  ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=50;ctx.shadowOffsetY=18;ctx.fillStyle=WH;ctx.fillRect(-w/2-14,-h/2-14,w+28,h+28);ctx.shadowColor='transparent';
+  photo(k,t,t0,BAR*2,{r:[-w/2,-h/2,w,h],z0:1,z1:1.06,punch:o.punch||0});ctx.restore();
+}
 function sClimax(t){
-  const b=Math.floor(t/BAR),C=CONCERT();
-  if(b===46){
-    if(C[0]){photo(C[0],t,tb(46),BAR,{z0:1.02,z1:1.1,punch:kickPunch(t,.04)});shade(.3)}else stageBg(t);
-    slam('정기연주회',960,500,230,t,tb(46),{sh:50,from:.9});
-    T('ANNUAL CONCERT',960,670,54,{f:'AN',c:PK,ls:22,al:prog(t,tb(46,4),.3),sh:20});
+  const b=Math.floor(t/BAR),P=CONC(),n=P.length,kp=kickPunch(t,.02);
+  if(!n){stageBg(t);}
+  if(b===46){ // 타이틀: 첫 사진을 크게
+    if(n){blurBg(P[0],t,tb(46),BAR);card(P[0],t,tb(46),960,600,1060,0,{punch:kp})}
+    slam('정기연주회',960,160,150,t,tb(46),{sh:50,from:.9});
+    T('ANNUAL CONCERT',960,1010,40,{f:'AN',c:PK,ls:22,al:prog(t,tb(46,4),.3),sh:20});
     return;
   }
-  if(b<52){ // 연혁: 마디마다 한 해
+  if(b<52){ // 연혁: 마디마다 한 해, 오른쪽에 연주회 사진
     const yi=b-47,[yr,ttl,sub]=YEARS[yi],ts=tb(b);
-    const ck=C[Math.min(4,yi)];
-    if(ck){photo(ck,t,tb(47),BAR*5,{z0:1.18,z1:1.02,px:.8,filter:'brightness(.55)',punch:kickPunch(t,.025)});grad(0,H,.2,.7)}else stageBg(t,.7);
-    // 큰 연도 숫자 (아래에서 굴러 올라옴)
-    ctx.save();ctx.beginPath();ctx.rect(0,140,W,420);ctx.clip();
+    if(n){const k=P[(yi+1)%n];blurBg(k,t,ts,BAR);grad(0,H,.15,.55);
+      if(yi>0)card(P[yi%n],t,-1,1390,470,760,.05*(yi%2?1:-1),{});
+      card(k,t,ts,1390,470,800,.03*(yi%2?-1:1),{from:500,punch:kp});}
+    ctx.save();ctx.beginPath();ctx.rect(0,140,980,420);ctx.clip();
     const p=eOutExpo(prog(t,ts,.35));
-    if(yi>0)T(YEARS[yi-1][0],120,350-p*420,330,{f:'AN',a:'left',c:WH,al:1-p});
-    T(yr,120,350+(1-p)*420,330,{f:'AN',a:'left',c:yi===4?PK:WH});
+    if(yi>0)T(YEARS[yi-1][0],120,350-p*420,330,{f:'AN',a:'left',c:WH,al:1-p,sh:30});
+    T(yr,120,350+(1-p)*420,330,{f:'AN',a:'left',c:yi===4?PK:WH,sh:30});
     ctx.restore();
-    rise(ttl,130,640,84,t,ts+BEAT,{});
-    if(sub)T(sub,134,740,40,{f:'NSB',a:'left',c:'#d8d8d2',al:prog(t,ts+BEAT*2,.4)});
-    if(yi===3){ // 2024 연주회 사진 두 장 (경북교육 웹진 수록)
-      [['concert24-a',1080,210,720,300,-.04],['concert24-b',1180,500,620,300,.03]].forEach(([k,x,y,w,h,r],j)=>{
-        const q=eOutBack(prog(t,ts+BEAT*(1+j),.35));if(q<=0||!has(k))return;
-        ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate(r);ctx.scale(q,q);ctx.fillStyle=WH;ctx.fillRect(-w/2-12,-h/2-12,w+24,h+24);
-        photo(k,t,ts,BAR,{r:[-w/2,-h/2,w,h],z0:1,z1:1.04});ctx.restore()});
-    }
-    // 타임라인 바
-    const x0=130,x1=1790,y=930;ctx.strokeStyle='#555';ctx.lineWidth=3;line(x0,y,x1,y);
+    rise(ttl,130,640,84,t,ts+BEAT,{sh:30});
+    if(sub)T(sub,134,740,40,{f:'NSB',a:'left',c:'#e8e8e2',al:prog(t,ts+BEAT*2,.4),sh:20});
+    const x0=130,x1=1790,y=930;ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=3;line(x0,y,x1,y);
     const pp=eOutExpo(prog(t,ts,.5));ctx.strokeStyle=PK;ctx.lineWidth=6;line(x0,y,x0+(x1-x0)*(yi-1+pp)/4,y);
-    YEARS.forEach(([yy],j)=>{const x=x0+(x1-x0)*j/4,on=j<=yi;circle(x,y,on?14:9,on?PK:BK,on?PK:'#777',3);T(yy,x,y+50,28,{f:'MO',c:on?WH:'#777'})});
+    YEARS.forEach(([yy],j)=>{const x=x0+(x1-x0)*j/4,on=j<=yi;circle(x,y,on?14:9,on?PK:BK,on?PK:'#999',3);T(yy,x,y+50,28,{f:'MO',c:on?WH:'#999',sh:10})});
+    if(n)T('사진: 광평중 정기연주회 (경북교육 웹진 2024 겨울호)',1860,1050,20,{f:'NS',a:'right',c:'#bbb',al:.8});
     return;
   }
-  // 35명 → 100여 명
-  photo(C[4]||'camp26-07',t,tb(52),BAR*2,{z0:1.02,z1:1.12,punch:kickPunch(t,.035)});shade(.45);
-  const k=Math.min(1,prog(t,tb(52,2),BAR*1.2)),n=Math.round(35+65*eOutCubic(k));
-  rise('35명으로 시작해',960,230,76,t,tb(52),{a:'center',f:'NSB',sh:20});
-  T(String(n)+(n>=100?'+':''),960,560,300,{f:'AN',c:n>=100?PK:WH,sh:40,sc:1+.08*env(EV.kick,t,10)});
-  rise('100여 명의 오케스트라로',960,840,96,t,tb(53),{a:'center',sh:30});
+  // 35명 → 100여 명: 연주회 사진이 박자마다 한 장씩 쌓임
+  if(n){blurBg(P[0],t,tb(52),BAR*2);
+    const spots=[[380,300,-.08],[1540,290,.07],[420,780,.06],[1500,790,-.06],[960,250,.02],[960,860,-.03]];
+    for(let j=0;j<spots.length;j++){const [x,y,r]=spots[j];card(P[j%n],t,tb(52)+j*BEAT*.5,x,y,560,r,{})}}
+  ctx.fillStyle='rgba(5,5,5,.55)';ctx.fillRect(0,380,W,360);
+  const k=Math.min(1,prog(t,tb(52,2),BAR*1.2)),nn=Math.round(35+65*eOutCubic(k));
+  rise('35명으로 시작해',960,425,56,t,tb(52),{a:'center',f:'NSB',sh:20});
+  T(String(nn)+(nn>=100?'+':''),960,585,170,{f:'AN',c:nn>=100?PK:WH,sh:40,sc:1+.08*env(EV.kick,t,10)});
+  rise('100여 명의 오케스트라로',960,712,64,t,tb(53),{a:'center',sh:30});
   const e=Math.pow(prog(t,tb(53,12),BEAT),2);ctx.fillStyle=`rgba(255,255,255,${e})`;ctx.fillRect(0,0,W,H);
 }
 // 1:48–2:00  엔딩
