@@ -253,7 +253,7 @@ function sStart(t){
     });
     T('현악 · 목관 · 금관 · 타악, 전공 악기 하나를 골라요',960,110,44,{f:'NSB',al:prog(t,tb(11,8),.4),sh:24});
   }else if(b<14){ // 3년, 악기 하나
-    shot([{k:'orient-05',fx:.55,fy:.8},{k:'camp26-05',fx:.5,tr:'wipeL'}],t,tb(12),BAR,{z0:1.02,z1:1.12});
+    shot([{k:'camp26-09',fx:.6},{k:'camp26-05',fx:.5,tr:'wipeL'}],t,tb(12),BAR,{z0:1.02,z1:1.12});
     ctx.fillStyle='rgba(5,5,5,.55)';ctx.fillRect(0,0,860,H);
     rise('3년,',110,330,150,t,tb(12,1),{c:PK});
     rise('악기 하나를',110,500,120,t,tb(12,6),{});
@@ -293,10 +293,10 @@ function sGrow(t){
   T('STEP',90,210,40,{f:'MO',a:'left',ls:10,c:PK,al:ip});
   T(num,80,400+(1-ip)*200,300,{f:'AN',a:'left',c:PK,al:ip});
   ctx.restore();
-  rise(ttl,90,640,si===2?92:104,t,s0+BEAT,{});
+  rise(ttl,90,640,92,t,s0+BEAT,{});
   T(sub,94,760,40,{f:'NSB',a:'left',c:'#cfcfca',al:prog(t,s0+BEAT*2,.4)});
   for(let j=0;j<3;j++){ctx.fillStyle=j<=si?PK:GR;ctx.fillRect(94+j*110,880,90,10)}
-  T('2026 하계 오케스트라 캠프',94,950,26,{f:'MO',a:'left',ls:2,c:'#8a8a86',al:prog(t,s0+BEAT*3,.4)});
+  T('음악중점반 수업 · 2025–2026',94,950,26,{f:'MO',a:'left',ls:2,c:'#8a8a86',al:prog(t,s0+BEAT*3,.4)});
 }
 // 0:56–1:28  무대
 const STAGE=[ // 마디마다 사진 한 장 + 라벨

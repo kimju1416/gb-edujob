@@ -10,7 +10,7 @@ const OUT = PREVIEW ? 'preview.mp4' : 'gwangpyeong-music-promo-v2.mp4';
 const F = process.cwd() + '/node_modules/ffmpeg-static/ffmpeg';
 const ff = spawn(F, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
   '-ss', String(T0), '-t', String(T1 - T0), '-i', 'bgm.wav',
-  '-c:v', 'libx264', '-preset', PREVIEW ? 'veryfast' : 'slow', '-crf', PREVIEW ? '23' : '18', '-pix_fmt', 'yuv420p',
+  '-c:v', 'libx264', '-preset', PREVIEW ? 'veryfast' : 'slow', '-crf', PREVIEW ? '23' : '20', '-maxrate', '5M', '-bufsize', '10M', '-pix_fmt', 'yuv420p',
   '-c:a', 'aac', '-b:a', '256k', '-shortest', '-movflags', '+faststart', OUT], { stdio: ['pipe', 'inherit', 'inherit'] });
 const br = await chromium.launch(); const p = await br.newPage({ viewport: { width: 1400, height: 1000 } });
 await p.goto('file://' + process.cwd() + '/render.html'); await p.evaluate(() => window.__ready);
