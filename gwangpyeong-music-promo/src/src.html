@@ -1,0 +1,381 @@
+<title>광평중 음악중점반 모션</title>
+<meta name="description" content="구미 광평중학교 음악중점반 30초 홍보 모션그래픽 (키네틱 타이포 + 도형, 128 BPM 비트 싱크)">
+<style>
+/*FONTS*/
+:root{
+  color-scheme: dark;
+  --bk:#050505; --wh:#F5F5F0; --pk:#FF2E8F; --dim:#8A8A86; --line:#262626;
+}
+html,body{background:var(--bk);color:var(--wh)}
+body{font-family:'Noto Sans KR',system-ui,sans-serif;padding-inline:16px;padding-block:20px 32px;box-sizing:border-box}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(22px,3.2vw,34px);letter-spacing:.5px;text-wrap:balance}
+h1 b{color:var(--pk);font-weight:400}
+.meta{font-family:'DM Mono',ui-monospace,monospace;font-size:12px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+.stage{position:relative;width:100%;max-width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;outline:1px solid var(--line)}
+.stage:fullscreen{outline:none}
+canvas{display:block;width:100%;height:100%;object-fit:contain}
+.big{position:absolute;inset:0;margin:auto;width:clamp(64px,10vw,112px);height:clamp(64px,10vw,112px);border-radius:50%;border:0;background:var(--pk);color:var(--bk);cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 10px rgba(255,46,143,.18),0 0 60px rgba(255,46,143,.5);transition:transform .15s}
+.big:hover{transform:scale(1.06)}
+.big:focus-visible,.ctl button:focus-visible{outline:3px solid var(--wh);outline-offset:3px}
+.big svg{width:38%;height:38%;margin-left:8%}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctl button{font:500 13px/1 'DM Mono',ui-monospace,monospace;letter-spacing:1px;background:transparent;color:var(--wh);border:1px solid #3a3a3a;padding:10px 14px;cursor:pointer;text-transform:uppercase}
+.ctl button:hover{border-color:var(--pk);color:var(--pk)}
+.ctl .grow{flex:1;min-width:120px;height:4px;background:#222;position:relative;cursor:pointer}
+.ctl .grow i{position:absolute;inset:0 auto 0 0;background:var(--pk);width:0}
+.ctl .tc{font:13px 'DM Mono',ui-monospace,monospace;color:var(--dim);font-variant-numeric:tabular-nums;min-width:92px;text-align:right}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px;font-size:13px;line-height:1.6;color:#bdbdb8;border-top:1px solid var(--line);padding-top:14px}
+.notes b{display:block;font-family:'DM Mono',monospace;font-weight:500;font-size:11px;letter-spacing:1.5px;color:var(--pk);text-transform:uppercase;margin-bottom:2px}
+@media (prefers-reduced-motion: reduce){.big{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>광평중학교 <b>음악중점반</b></h1>
+    <span class="meta">Promo motion · 0:30 · 16:9 · ♩=128</span>
+  </header>
+  <div class="stage" id="stage">
+    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 홍보 모션그래픽"></canvas>
+    <button class="big" id="bigPlay" aria-label="재생"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="currentColor"/></svg></button>
+  </div>
+  <div class="ctl">
+    <button id="play">▶ 재생</button>
+    <button id="restart">↺ 처음부터</button>
+    <div class="grow" id="seek" role="slider" aria-label="재생 위치" tabindex="0"><i id="bar"></i></div>
+    <span class="tc" id="tc">0:00 / 0:30</span>
+    <button id="fs">전체화면</button>
+  </div>
+  <div class="notes">
+    <div><b>BGM</b>128 BPM 오리지널 일렉트로 팝. 샘플 없이 코드로 직접 합성한 곡이라 저작권 걱정 없이 상업적으로 써도 됩니다.</div>
+    <div><b>Beat sync</b>킥·클랩·신스 스탭·멜로디가 울리는 시점 데이터를 그대로 받아서 글자와 도형을 움직입니다.</div>
+    <div><b>Facts</b>2021년 경북교육청 음악중점학교 지정 · 3년간 악기 1개 전액 국비 · 창단 35명 → 정기연주회 100여 명</div>
+  </div>
+</div>
+
+<script>
+const EV = /*EVENTS*/null;
+const AUDIO_B64 = "/*AUDIO*/";
+
+// ===================== 편집 포인트 =====================
+const INSTR = [ // [이름, 계열] S현악 W목관 B금관 P타악 — 실제 개설 악기에 맞게 수정하세요
+  ['바이올린','S'],['비올라','S'],['첼로','S'],['콘트라베이스','S'],
+  ['플루트','W'],['클라리넷','W'],['오보에','W'],['바순','W'],
+  ['트럼펫','B'],['호른','B'],['트롬본','B'],['튜바','B'],
+  ['팀파니','P'],['타악기','P'],
+];
+const FAM = {S:['STRINGS','현악'],W:['WOODWINDS','목관'],B:['BRASS','금관'],P:['PERCUSSION','타악']};
+// ======================================================
+
+const W=1920,H=1080, BPM=128, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=30;
+const BK='#050505', WH='#F5F5F0', PK='#FF2E8F', GR='#2E2E2E';
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const FF={BHS:"'Black Han Sans','Noto Sans KR',sans-serif", AN:"'Anton',Impact,sans-serif", MO:"'DM Mono',ui-monospace,monospace", NS:"'Noto Sans KR',sans-serif", NSB:"'Noto Sans KR',sans-serif"};
+const FW={BHS:'400',AN:'400',MO:'500',NS:'500',NSB:'700'};
+const CH=[[55,59,62,67],[54,57,62,66],[52,55,59,64],[52,55,60,64]];
+
+const tb=(bar,s=0)=>bar*BAR+s*S16;
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const prog=(t,t0,d)=>clamp((t-t0)/d);
+const eOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
+const eInExpo=x=>x<=0?0:Math.pow(2,10*x-10);
+const eOutBack=x=>{const c1=2.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const eOutCubic=x=>1-Math.pow(1-x,3);
+const hash=x=>{const s=Math.sin(x*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const tOf=v=>Array.isArray(v)?v[0]:v;
+function last(arr,t){let r=null;for(const v of arr){if(tOf(v)<=t)r=v;else break;}return r}
+function env(arr,t,k){const v=last(arr,t);return v==null?0:Math.exp(-(t-tOf(v))*k)}
+const isDrop=b=>(b>=2&&b<=9)||(b>=12&&b<=14);
+
+// ---------- drawing helpers ----------
+function T(s,x,y,size,o={}){
+  const {f='BHS',c=WH,a='center',al=1,sc=1,rot=0,ls=0,stroke=0,base='middle'}=o;
+  if(al<=0.001||sc<=0.001)return;
+  ctx.save();ctx.globalAlpha*=Math.min(1,al);ctx.translate(x,y);ctx.rotate(rot);ctx.scale(sc,sc);
+  ctx.font=`${FW[f]} ${size}px ${FF[f]}`;ctx.textAlign=a;ctx.textBaseline=base;ctx.letterSpacing=ls+'px';
+  if(stroke){ctx.lineWidth=stroke;ctx.strokeStyle=c;ctx.lineJoin='round';ctx.strokeText(s,0,0)}
+  else{ctx.fillStyle=c;ctx.fillText(s,0,0)}
+  ctx.restore();
+}
+function measure(s,size,f='BHS',ls=0){ctx.save();ctx.font=`${FW[f]} ${size}px ${FF[f]}`;ctx.letterSpacing=ls+'px';const w=ctx.measureText(s).width;ctx.restore();return w}
+// 슬램: 크게 → 제자리 (비트에 '쾅')
+function slam(s,x,y,size,t,t0,o={}){
+  if(t<t0)return;const d=o.d||0.2,p=prog(t,t0,d),from=o.from??0.7;
+  T(s,x,y,size,{...o,sc:(o.sc||1)*(1+from*(1-eOutExpo(p))),al:(o.al??1)*Math.min(1,p*5),rot:(o.rot||0)+(o.spin||0)*(1-eOutExpo(p))});
+}
+// 글자 단위 순차 슬램
+function chars(str,x,y,size,t,t0,step,o={}){
+  const arr=[...str],ws=arr.map(ch=>measure(ch,size,o.f||'BHS'));
+  const total=ws.reduce((a,b)=>a+b,0);let cx=o.a==='left'?x:x-total/2,j=0;
+  arr.forEach((ch,i)=>{
+    if(ch!==' '){const col=o.color?o.color(i,ch):(o.c||WH);
+      slam(ch,cx+ws[i]/2,y,size,t,t0+(o.times?o.times[j]:j*step),{...o,a:'center',c:col,from:o.from??0.9});j++;}
+    cx+=ws[i];
+  });
+}
+function line(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function circle(x,y,r,fill,stroke,lw=2){if(r<=0)return;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}}
+function tri(x,y,r,rot,fill){ctx.beginPath();for(let i=0;i<3;i++){const a=rot+i*Math.PI*2/3-Math.PI/2;ctx[i?'lineTo':'moveTo'](x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.closePath();ctx.fillStyle=fill;ctx.fill()}
+function plus(x,y,r,rot,col,lw=8){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.lineCap='square';line(-r,0,r,0);line(0,-r,0,r);ctx.restore()}
+function notehead(x,y,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(-0.38);ctx.scale(s,s);ctx.beginPath();ctx.ellipse(0,0,28,20,0,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.restore()}
+function eighth(x,y,s,col){ // 8분음표 (도형으로 조립)
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  notehead(0,0,1,col);ctx.fillStyle=col;ctx.fillRect(22,-150,8,152);
+  ctx.beginPath();ctx.moveTo(30,-150);ctx.bezierCurveTo(40,-110,90,-100,70,-40);ctx.bezierCurveTo(80,-90,50,-100,30,-110);ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+function marquee(str,y,size,speed,t,o={}){
+  const w=measure(str,size,o.f||'AN',o.ls||0);let x=-((t*speed)%w+w)%w;if(speed<0)x=((-t*speed)%w)-w;
+  for(let xx=x-w;xx<W+w;xx+=w)T(str,xx,y,size,{...o,a:'left',f:o.f||'AN'});
+}
+function wipeBar(x,y,w,h,t,t0,col,d=0.24){if(t<t0)return 0;const p=eOutExpo(prog(t,t0,d));ctx.fillStyle=col;ctx.fillRect(x,y,w*p,h);return p}
+
+// ---------- scenes (마디 단위) ----------
+function s0(t){ // 들리니?
+  const y0=730,g=30;ctx.strokeStyle=WH;ctx.lineWidth=2;
+  for(let i=0;i<5;i++){ctx.globalAlpha=.35;const p=eOutExpo(prog(t,i*0.05,1.3));line(0,y0+(i-2)*g,W*p,y0+(i-2)*g)}
+  ctx.globalAlpha=1;
+  const pos=[-2,0,1,3];
+  EV.tick.filter(v=>v<tb(1)).forEach((tt,i)=>{
+    if(t<tt)return;const p=prog(t,tt,0.7),x=560+i*270,y=y0-pos[i]*g/1;
+    circle(x,y,30+280*eOutExpo(p),null,`rgba(255,46,143,${(1-p)*.9})`,3);
+    const s=eOutBack(prog(t,tt,0.22));notehead(x,y,s*1.15,PK);
+    ctx.fillStyle=WH;ctx.fillRect(x+26,y-150*s,6,150*s);
+  });
+  chars('들리니?',960,390,190,t,tb(0,4),S16*1.2,{color:i=>i===3?PK:WH});
+  if(t>tb(0,12)){const p=eOutExpo(prog(t,tb(0,12),.3));T('CAN YOU HEAR IT?',960,520+(1-p)*30,40,{f:'MO',c:PK,al:p,ls:10})}
+}
+function s1(t){ // 너의 중학교 3년, 어떤 소리로 채울래?
+  const lt=t-tb(1);
+  for(let i=0;i<9;i++){const r=((i*150+lt*lt*520+lt*120)%1350);ctx.globalAlpha=.3*(1-r/1350);circle(960,540,r,null,PK,2)}
+  ctx.globalAlpha=1;
+  const words=['너의','중학교','3년,'],sz=170;let x=170;
+  words.forEach((w,i)=>{const ww=measure(w,sz);slam(w,x+ww/2,400,sz,t,tb(1,i*4),{from:.8});x+=ww+48});
+  const s='어떤 소리로 채울래?';const times=[...Array(9)].map((_,j)=>j*S16);
+  chars(s,170,640,170,t,tb(1,6),S16,{a:'left',color:i=>(i===3||i===4)?PK:WH});
+  if(t>tb(1,12)){const p=eInExpo(prog(t,tb(1,12),BEAT));circle(960,540,p*1250,PK)}
+}
+function s2(t){ // 광평중 / 음악중점반
+  const k=env(EV.kick,t,9),b3=t>=tb(3);
+  // 회전 점선 링 + 궤도 삼각형
+  ctx.save();ctx.translate(960,540);ctx.rotate(t*0.6);ctx.setLineDash([6,22]);
+  circle(0,0,480*eOutExpo(prog(t,tb(2),.5))*(1+.04*k),null,'rgba(255,46,143,.7)',4);ctx.setLineDash([]);ctx.restore();
+  for(let i=0;i<5;i++){const a=t*0.9+i*Math.PI*2/5,r=560;if(t>tb(2,i))tri(960+Math.cos(a)*r,540+Math.sin(a)*r*.55,18+10*k,a*2,i%2?WH:PK)}
+  if(b3){marquee('MUSIC FOCUS CLASS — GWANGPYEONG — ',140,96,-320,t,{stroke:2,c:PK,ls:4});marquee('광평중학교 음악중점반   ',950,90,280,t,{f:'BHS',stroke:2,c:WH,al:.5})}
+  ctx.save();ctx.translate(960,540);ctx.scale(1+.05*k,1+.05*k);ctx.translate(-960,-540);
+  ['광','평','중'].forEach((c,i)=>slam(c,600+i*360,470,350,t,tb(2,i*4),{from:1.1,spin:(i-1)*.25}));
+  const p=wipeBar(330,650,1260,160,t,tb(2,12),PK);
+  if(p>0){ctx.save();ctx.beginPath();ctx.rect(330,650,1260*p,160);ctx.clip();T('음악중점반',960,733,140,{c:BK,ls:6});ctx.restore()}
+  ctx.restore();
+  // 3마디 클랩 → 흑백 반전 스트로브
+  if(b3){const c=last(EV.clap,t);if(c!=null&&c>=tb(3)&&t-c<0.075){ctx.globalCompositeOperation='difference';ctx.fillStyle='#fff';ctx.fillRect(-200,-200,W+400,H+400);ctx.globalCompositeOperation='source-over'}}
+}
+function s3(t){ // 경북 유일
+  const k=env(EV.kick,t,9),t1=tb(4,12),cx=1400,cy=540;
+  if(t>tb(4)){circle(cx,cy,440*eOutExpo(prog(t,tb(4),.6))*(1+.03*k),null,'rgba(245,245,240,.18)',2)}
+  if(t>=t1){
+    const ring='ONLY ONE IN GYEONGBUK — MUSIC FOCUS SCHOOL — ';const n=ring.length,show=Math.floor(n*eOutExpo(prog(t,t1,.8)));
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(-t*0.35);
+    for(let i=0;i<show;i++){ctx.save();ctx.rotate(i/n*Math.PI*2);T(ring[i],0,-380,30,{f:'MO',c:WH,al:.85});ctx.restore()}
+    ctx.restore();
+    slam('1',cx,cy+40,820,t,t1,{f:'AN',c:PK,from:2.2,sc:1+.04*k});
+  }
+  if(t<tb(5)){
+    slam('경북에서',160+measure('경북에서',130)/2,330,130,t,tb(4),{});
+    slam('단',160+measure('단',230)/2,560,230,t,tb(4,4),{});
+    slam('하나',160+measure('단 ',230)+measure('하나',230)/2,560,230,t,tb(4,8),{c:PK});
+  }else{
+    slam('경북 유일',160+measure('경북 유일',150)/2,360,150,t,tb(5),{c:PK});
+    chars('음악중점학교',160,550,150,t,tb(5,2),S16,{a:'left'});
+    if(t>tb(5,8)){const p=prog(t,tb(5,8),.2);ctx.save();ctx.translate(400,760);ctx.rotate(-.1);const s=1+1.2*(1-eOutExpo(p));ctx.scale(s,s);ctx.globalAlpha=Math.min(1,p*5);
+      ctx.strokeStyle=PK;ctx.lineWidth=5;ctx.strokeRect(-230,-60,460,120);T('SINCE 2021',0,4,72,{f:'AN',c:PK,ls:6});ctx.restore()}
+    if(t>tb(5,12)){const p=eOutExpo(prog(t,tb(5,12),.3));T('2021. 3  경상북도교육청 음악중점학교 지정',160,905+(1-p)*20,30,{f:'NS',a:'left',al:p*.75})}
+  }
+}
+function s4(t){ // 악기 레슨 0원
+  const k=env(EV.kick,t,9);
+  // 피아노 건반 (현재 코드 음이 핑크로 점등)
+  const ky=870+(1-eOutExpo(prog(t,tb(6),.4)))*240,kw=W/15,stab=last(EV.stab,t);
+  const bar=Math.floor(t/BAR),notes=CH[bar%4],on=stab?Math.exp(-(t-stab[0])*5):0;
+  const whites=[48,50,52,53,55,57,59,60,62,64,65,67,69,71,72];
+  whites.forEach((m,i)=>{ctx.fillStyle=notes.includes(m)&&on>.05?PK:WH;ctx.globalAlpha=notes.includes(m)?.35+.65*on:1;ctx.fillRect(i*kw+2,ky,kw-4,260);ctx.globalAlpha=1});
+  const blacks=[[49,0],[51,1],[54,3],[56,4],[58,5],[61,7],[63,8],[66,10],[68,11],[70,12]];
+  blacks.forEach(([m,i])=>{ctx.fillStyle=notes.includes(m)&&on>.05?PK:BK;ctx.fillRect((i+1)*kw-kw*.3,ky,kw*.6,150)});
+  if(t<tb(7)){
+    [['악기 하나,',WH,260],['3년 동안',WH,450],['레슨비는?',PK,640]].forEach(([s,c,y],i)=>slam(s,160+measure(s,170)/2,y,170,t,tb(6,i*4),{c}));
+    if(t>tb(6,12)){const d=Math.floor(t/0.045);ctx.save();ctx.beginPath();ctx.rect(1180,160,560,620);ctx.clip();
+      T(String(Math.floor(hash(d)*9)+1),1460,470+((t/0.045)%1)*120,640,{f:'AN',c:WH,al:.9});ctx.restore()}
+  }else{
+    slam('0',840,470,690,t,tb(7),{f:'AN',c:WH,from:1.6,sc:1+.04*k});
+    slam('원',1200,560,300,t,tb(7,2),{c:PK});
+    const p=wipeBar(420,700,1080,130,t,tb(7,4),PK);
+    if(p>0){ctx.save();ctx.beginPath();ctx.rect(420,700,1080*p,130);ctx.clip();T('3년간 악기 1개 · 전액 국비 지원',960,768,66,{c:BK,ls:2});ctx.restore()}
+    if(t>tb(7,10)){for(let i=0;i<6;i++){const tt=tb(7,10)+i*S16*.5,p2=prog(t,tt,.6);if(t>tt){const a=hash(i+3)*Math.PI*2;plus(960+Math.cos(a)*(520+200*eOutExpo(p2)),440+Math.sin(a)*(300+120*eOutExpo(p2)),22,p2*3,i%2?PK:WH,8)}}}
+  }
+}
+function famShape(fam,t,t0){
+  const lp=t-t0,k=env(EV.kick,t,9);ctx.save();ctx.globalAlpha=.9;
+  if(fam==='S'){ctx.strokeStyle=PK;ctx.lineWidth=5;for(let j=0;j<4;j++){const x=720+j*160,a=Math.sin(lp*70+j)*26*Math.exp(-lp*5);ctx.beginPath();ctx.moveTo(x,90);ctx.quadraticCurveTo(x+a,540,x,990);ctx.stroke()}}
+  if(fam==='W'){for(let j=0;j<7;j++){const s=eOutBack(prog(lp,j*0.03,.2));circle(510+j*150,540,40*s,j%3===1?PK:null,PK,5)}}
+  if(fam==='B'){for(let j=0;j<4;j++){const r=150+j*110+lp*260;circle(960,540,r,null,`rgba(255,46,143,${Math.max(0,.8-j*.18-lp*.8)})`,6)}}
+  if(fam==='P'){ctx.save();ctx.translate(960,540);ctx.rotate(lp*1.5+.3);ctx.strokeStyle=PK;ctx.lineWidth=6;const s=440*(1+.08*k);ctx.strokeRect(-s/2,-s/2,s,s);ctx.restore();circle(960,540,120*(1+.2*k),null,WH,4)}
+  ctx.restore();
+}
+function s5(t){ // 악기 속사포
+  const t0=tb(8),slot=S16*2,n=INSTR.length,i=Math.floor((t-t0)/slot);
+  if(i<n){
+    const [name,fam]=INSTR[i],ts=t0+i*slot;famShape(fam,t,ts);
+    const size=Math.min(300,1600/[...name].length);
+    slam(name,960+(hash(i)-.5)*80,560,size,t,ts,{c:i%2?PK:WH,from:.45,spin:(hash(i+9)-.5)*.2,d:.14});
+    T(FAM[fam][0]+' / '+FAM[fam][1],160,190,28,{f:'MO',a:'left',c:WH,ls:4,al:.8});
+    T(String(i+1).padStart(2,'0')+' / '+String(n).padStart(2,'0'),1760,190,28,{f:'MO',a:'right',c:PK,ls:4});
+    T('ORCHESTRA',160,900,28,{f:'MO',a:'left',c:WH,ls:6,al:.5});
+  }else{
+    const ts=t0+n*slot;
+    for(let j=0;j<12;j++){const a=j/12*Math.PI*2+t*.4,p=eOutExpo(prog(t,ts+j*.02,.5));tri(960+Math.cos(a)*620*p,540+Math.sin(a)*360*p,16,a,j%2?PK:WH)}
+    chars('너의 악기는?',960,540,200,t,ts,S16*.5,{color:i=>(i===3||i===4)?PK:WH});
+  }
+}
+function s6(t){ // 35 → 100
+  const cx=1370,cy=540,gp=76,r=21,t10=tb(10),t11=tb(11);
+  const litT=i=>i<35?t10+i*(BEAT*1.3/35):t11+BAR*.96*Math.pow((i-34)/65,.55);
+  let lit=0;const leadN=last(EV.lead,t),leadOn=leadN&&t<leadN[0]+leadN[2]+.1;
+  const hot=leadOn?Math.floor(hash(leadN[0])*Math.min(100,Math.max(1,countLit(t)))):-1;
+  function countLit(tt){let c=0;for(let i=0;i<100;i++)if(tt>=litT(i))c++;return c}
+  for(let i=0;i<100;i++){
+    const x=cx+((i%10)-4.5)*gp,y=cy+(Math.floor(i/10)-4.5)*gp,lt=litT(i);
+    if(t>=lt){lit++;const s=eOutBack(prog(t,lt,.25));circle(x,y,r*s,i===hot?PK:WH);if(i===hot)circle(x,y,r+14*Math.exp(-(t-leadN[0])*4),null,PK,3)}
+    else circle(x,y,r*.55,null,'#3a3a3a',2);
+  }
+  if(t<t11){
+    slam('2021년,',160+measure('2021년,',90)/2,300,90,t,t10,{c:WH,al:.75});
+    slam('35명으로 시작한',160+measure('35명으로 시작한',110)/2,450,110,t,tb(10,4));
+    slam('오케스트라',160+measure('오케스트라',170)/2,640,170,t,tb(10,8),{c:PK});
+  }else{
+    slam('그리고 지금,',160+measure('그리고 지금,',80)/2,240,80,t,t11,{al:.8});
+    const done=lit>=100;
+    T(String(lit),150,560,440,{f:'AN',a:'left',c:done?PK:WH,sc:done?1+.12*Math.exp(-(t-litT(99))*8):1});
+    if(t>tb(11,8)){const p=eOutExpo(prog(t,tb(11,8),.3));T('2024 정기연주회 · 단원 100여 명',160,850,52,{a:'left',al:p})}
+  }
+}
+function s7(t){ // 활동 + 무대
+  const k=env(EV.kick,t,9);
+  if(t<tb(13)){
+    const items=[['오케스트라','ORCHESTRA'],['음악가 특강','MASTERCLASS'],['연주회','CONCERT'],['음악 캠프','CAMP']];
+    items.forEach(([ko,en],i)=>{const ts=tb(12,i*4);if(t<ts)return;
+      const x=120+(i%2)*850,y=170+Math.floor(i/2)*370,w=830,h=350,p=prog(t,ts,.2),s=1+.25*(1-eOutExpo(p))+.015*k;
+      ctx.save();ctx.translate(x+w/2,y+h/2);ctx.scale(s,s);ctx.globalAlpha=Math.min(1,p*5);
+      const fill=Math.exp(-(t-ts)*4);ctx.fillStyle=`rgba(255,46,143,${fill})`;ctx.fillRect(-w/2,-h/2,w,h);
+      ctx.strokeStyle=fill>.3?BK:WH;ctx.lineWidth=3;ctx.strokeRect(-w/2,-h/2,w,h);
+      T(en,-w/2+34,-h/2+44,30,{f:'MO',a:'left',c:fill>.4?BK:PK,ls:6});
+      T(ko,0,24,120,{c:fill>.5?BK:WH});ctx.restore();
+    });
+  }else{
+    for(let r=0;r<6;r++)marquee('ON STAGE — ',120+r*170,150,(r%2?1:-1)*380,t,{stroke:2,c:WH,al:.12});
+    const p=eOutExpo(prog(t,tb(13),.35)),wd=540*p;
+    const gr=ctx.createLinearGradient(0,0,0,920);gr.addColorStop(0,'rgba(255,46,143,.05)');gr.addColorStop(1,'rgba(255,46,143,.45)');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(960-40,-20);ctx.lineTo(960+40,-20);ctx.lineTo(960+wd,900);ctx.lineTo(960-wd,900);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.ellipse(960,900,wd,70*p,0,0,Math.PI*2);ctx.strokeStyle=PK;ctx.lineWidth=4;ctx.stroke();
+    slam('무대 위',700,230,120,t,tb(13),{});slam('주인공은',1180,230,120,t,tb(13,4),{});
+    slam('너',960,640,520,t,tb(13,8),{c:WH,from:2.2,sc:1+.05*k});
+    if(t>tb(13,12)){T('YOU',1330,760,110,{f:'AN',stroke:3,c:PK,al:prog(t,tb(13,12),.1),ls:8})}
+  }
+}
+function s8(t){ // CTA + 엔딩
+  const k=env(EV.kick,t,9);
+  if(t<tb(15)){
+    slam('광평중학교',160+measure('광평중학교',180)/2,280,180,t,tb(14));
+    const p=wipeBar(150,400,measure('음악중점반',180)+40,200,t,tb(14,4),PK);
+    if(p>0)T('음악중점반',170,505,180,{a:'left',c:BK});
+    chars('신입생 모집',170,740,180,t,tb(14,8),S16*.9,{a:'left',color:i=>i>3?PK:WH});
+    if(t>tb(14)){const s=eOutBack(prog(t,tb(14),.3))*(1+.08*k);eighth(1480,700,2.6*s,PK);circle(1480,560,330*s,null,'rgba(245,245,240,.25)',2)}
+  }else{
+    const t0=tb(15);
+    for(let i=0;i<28;i++){const a=hash(i)*Math.PI*2,d=420+hash(i+50)*700,p=eOutExpo(prog(t,t0,1.2)),x=960+Math.cos(a)*d*p,y=540+Math.sin(a)*d*p*.62,col=i%3?WH:PK,rot=t*2+i;
+      ctx.globalAlpha=.25+.5*(1-p);const ty=i%4;if(ty===0)tri(x,y,18,rot,col);else if(ty===1)plus(x,y,14,rot,col,6);else if(ty===2)circle(x,y,12,col);else notehead(x,y,.7,col);ctx.globalAlpha=1}
+    slam('너의 소리가',960,300,140,t,t0,{from:.5});
+    slam('시작되는 곳',960,460,140,t,t0+S16*2,{from:.5});
+    const bw=1180,p=wipeBar(960-bw/2,560,bw,150,t,t0+S16*4,PK);
+    if(p>0){ctx.save();ctx.beginPath();ctx.rect(960-bw/2,560,bw*p,150);ctx.clip();T('광평중학교 음악중점반',960,638,104,{c:BK,ls:2});ctx.restore()}
+    if(t>t0+S16*7){const q=eOutExpo(prog(t,t0+S16*7,.4));T('YOUR SOUND STARTS HERE',960,780+(1-q)*20,46,{f:'AN',c:WH,ls:16,al:q})}
+    if(t>t0+S16*9){const q=eOutExpo(prog(t,t0+S16*9,.4));T('경북 유일 음악중점학교  ·  경상북도 구미시',960,860,30,{f:'NS',al:q*.7})}
+  }
+}
+const SCENES=[[0,s0],[1,s1],[2,s2],[4,s3],[6,s4],[8,s5],[10,s6],[12,s7],[14,s8]];
+
+// ---------- grain ----------
+const grain=document.createElement('canvas');grain.width=grain.height=256;
+{const g=grain.getContext('2d'),id=g.createImageData(256,256);let sd=7;for(let i=0;i<id.data.length;i+=4){sd=(sd*16807)%2147483647;const v=sd%255;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255}g.putImageData(id,0,0)}
+
+function hud(t){
+  const bar=Math.floor(t/BAR),beat=Math.floor(t/BEAT)%4,k=env(EV.kick,t,10);
+  ctx.save();ctx.globalAlpha=.9;
+  ctx.fillStyle=PK;ctx.fillRect(60,50,14,14);
+  T('광평중학교 음악중점반',88,58,22,{f:'NSB',a:'left'});
+  T('GWANGPYEONG MIDDLE SCHOOL · MUSIC FOCUS CLASS',60,94,15,{f:'MO',a:'left',al:.5,ls:2});
+  T('BPM 128   BAR '+String(Math.min(16,bar+1)).padStart(2,'0')+' / 16',1860,58,18,{f:'MO',a:'right',ls:2});
+  for(let i=0;i<4;i++){ctx.fillStyle=i===beat?PK:'#3a3a3a';const s=i===beat?12+4*k:12;ctx.fillRect(1860-(3-i)*26-s,84-s/2,s,s)}
+  const x0=60,x1=1860,y=1034;ctx.strokeStyle='#3a3a3a';ctx.lineWidth=2;line(x0,y,x1,y);
+  for(let b=0;b<=16;b++){const x=x0+(x1-x0)*b/16;line(x,y-8,x,y+8)}
+  ctx.strokeStyle=PK;ctx.lineWidth=4;line(x0,y,x0+(x1-x0)*t/DUR,y);
+  circle(x0+(x1-x0)*t/DUR,y,6+4*k,PK);
+  ctx.restore();
+}
+
+function render(t){
+  t=clamp(t,0,DUR-1e-4);
+  const bar=Math.floor(t/BAR),k=env(EV.kick,t,9),cr=last(EV.crash,t);
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle=BK;ctx.fillRect(0,0,W,H);
+  const crE=cr!=null?Math.exp(-(t-cr)*3):0;
+  const build=(bar===1?Math.pow(prog(t,tb(1),BAR),2)*7:0)+(bar===11?Math.pow(prog(t,tb(11),BAR),2)*6:0)+(t>tb(14,14)&&bar===14?8:0);
+  const sh=crE*16+build,fr=Math.floor(t*60);
+  const cs=1+(isDrop(bar)?.022*k:0);
+  ctx.save();ctx.translate(W/2+(hash(fr)-.5)*2*sh,H/2+(hash(fr+99)-.5)*2*sh);ctx.scale(cs,cs);ctx.translate(-W/2,-H/2);
+  let sc=SCENES[0];for(const s of SCENES)if(bar>=s[0])sc=s;
+  sc[1](t);
+  ctx.restore();
+  // 크래시 플래시 (드롭 진입)
+  if(cr!=null){const p=prog(t,cr,.32);if(p<1){ctx.fillStyle=PK;ctx.globalAlpha=Math.pow(1-p,2)*.95;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}}
+  hud(t);
+  // 비네트 + 그레인
+  const vg=ctx.createRadialGradient(960,540,420,960,540,1150);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=.06;ctx.globalCompositeOperation='overlay';const ox=-Math.floor(hash(fr)*256),oy=-Math.floor(hash(fr+7)*256);
+  for(let x=ox;x<W;x+=256)for(let y=oy;y<H;y+=256)ctx.drawImage(grain,x,y);
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+}
+
+// ---------- player ----------
+const POSTER=29.6;
+let actx=null,abuf=null,src=null,startAt=0,offset=0,playing=false;
+const $=id=>document.getElementById(id);
+function fmt(s){s=Math.max(0,Math.min(DUR,s));return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
+function now(){return playing?Math.min(DUR,actx.currentTime-startAt-(actx.outputLatency||0)):offset}
+async function ensureAudio(){
+  if(abuf)return;actx=new (window.AudioContext||window.webkitAudioContext)();
+  const bin=Uint8Array.from(atob(AUDIO_B64),c=>c.charCodeAt(0));abuf=await actx.decodeAudioData(bin.buffer);
+}
+async function play(){
+  await ensureAudio();if(actx.state==='suspended')await actx.resume();
+  if(offset>=DUR-0.05)offset=0;
+  src=actx.createBufferSource();src.buffer=abuf;src.connect(actx.destination);
+  startAt=actx.currentTime-offset;src.start(0,offset);playing=true;$('bigPlay').hidden=true;$('play').textContent='❚❚ 일시정지';
+  src.onended=()=>{if(playing&&now()>=DUR-0.1){playing=false;offset=DUR;ui()}};
+}
+function pause(){if(!playing)return;offset=now();playing=false;try{src.stop()}catch(e){}ui()}
+function ui(){$('play').textContent=playing?'❚❚ 일시정지':'▶ 재생';$('bigPlay').hidden=playing}
+function seek(s){const was=playing;pause();offset=clamp(s,0,DUR);render(offset);tick();if(was)play()}
+function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 0:30'}
+function loop(){if(playing){const t=now();render(t);tick();if(t>=DUR){playing=false;offset=DUR;ui()}}requestAnimationFrame(loop)}
+$('bigPlay').onclick=()=>{offset=offset>=DUR-0.05||offset===POSTER?0:offset;play()};
+$('play').onclick=()=>{if(playing)pause();else{if(offset===POSTER)offset=0;play()}};
+$('restart').onclick=()=>{pause();offset=0;play()};
+$('seek').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();seek((e.clientX-r.left)/r.width*DUR)};
+$('seek').onkeydown=e=>{if(e.key==='ArrowRight')seek(now()+2);if(e.key==='ArrowLeft')seek(now()-2)};
+$('cv').onclick=()=>{playing?pause():$('play').click()};
+$('fs').onclick=()=>{const s=$('stage');(s.requestFullscreen?s.requestFullscreen():Promise.reject()).catch(()=>{})};
+window.__render=render;
+window.__ready=document.fonts.ready.then(()=>Promise.all(['BHS','AN','MO','NS','NSB'].map(f=>document.fonts.load(`${FW[f]} 40px ${FF[f]}`,'가A1')))).then(()=>{offset=POSTER;render(POSTER);return true});
+requestAnimationFrame(loop);
+</script>
