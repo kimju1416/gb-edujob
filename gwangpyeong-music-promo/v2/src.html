@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>광평중 음악중점반 2편</title>
+<meta name="description" content="구미 광평중학교 음악중점반 2분 홍보영상 — 처음 악기를 잡은 날부터 정기연주회 무대까지 (사진 + 모션그래픽, 120 BPM 비트 싱크)">
+<style>
+/*FONTS*/
+:root{
+  color-scheme: dark;
+  --bk:#050505; --wh:#F5F5F0; --pk:#FF2E8F; --dim:#8A8A86; --line:#262626;
+}
+html,body{background:var(--bk);color:var(--wh)}
+body{margin:0;font-family:'Noto Sans KR',system-ui,sans-serif;padding-inline:16px;padding-block:20px 32px;box-sizing:border-box}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-weight:400;font-size:clamp(22px,3.2vw,34px);letter-spacing:.5px;text-wrap:balance}
+h1 b{color:var(--pk);font-weight:400}
+.meta{font-family:'DM Mono',ui-monospace,monospace;font-size:12px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+.stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;outline:1px solid var(--line)}
+.stage:fullscreen{outline:none}
+canvas{display:block;width:100%;height:100%;object-fit:contain}
+.big{position:absolute;inset:0;margin:auto;width:clamp(64px,10vw,112px);height:clamp(64px,10vw,112px);border-radius:50%;border:0;background:var(--pk);color:var(--bk);cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 10px rgba(255,46,143,.18),0 0 60px rgba(255,46,143,.5);transition:transform .15s}
+.big:hover{transform:scale(1.06)}
+.big:focus-visible,.ctl button:focus-visible,.grow:focus-visible{outline:3px solid var(--wh);outline-offset:3px}
+.big svg{width:38%;height:38%;margin-left:8%}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctl button{font:500 13px/1 'DM Mono',ui-monospace,monospace;letter-spacing:1px;background:transparent;color:var(--wh);border:1px solid #3a3a3a;padding:10px 14px;cursor:pointer;text-transform:uppercase}
+.ctl button:hover{border-color:var(--pk);color:var(--pk)}
+.ctl .grow{flex:1;min-width:120px;height:4px;background:#222;position:relative;cursor:pointer}
+.ctl .grow i{position:absolute;inset:0 auto 0 0;background:var(--pk);width:0}
+.ctl .tc{font:13px 'DM Mono',ui-monospace,monospace;color:var(--dim);font-variant-numeric:tabular-nums;min-width:92px;text-align:right}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px;font-size:13px;line-height:1.6;color:#bdbdb8;border-top:1px solid var(--line);padding-top:14px}
+.notes b{display:block;font-family:'DM Mono',monospace;font-weight:500;font-size:11px;letter-spacing:1.5px;color:var(--pk);text-transform:uppercase;margin-bottom:2px}
+.loading{position:absolute;left:16px;bottom:12px;font:12px 'DM Mono',monospace;color:var(--dim);letter-spacing:1px}
+@media (prefers-reduced-motion: reduce){.big{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>광평중학교 <b>음악중점반</b> · 2편</h1>
+    <span class="meta">Promo film · 2:00 · 16:9 · ♩=120</span>
+  </header>
+  <div class="stage" id="stage">
+    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 2분 홍보영상"></canvas>
+    <button class="big" id="bigPlay" aria-label="재생"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="currentColor"/></svg></button>
+    <span class="loading" id="loading">사진 불러오는 중…</span>
+  </div>
+  <div class="ctl">
+    <button id="play">▶ 재생</button>
+    <button id="restart">↺ 처음부터</button>
+    <div class="grow" id="seek" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="120" tabindex="0"><i id="bar"></i></div>
+    <span class="tc" id="tc">0:00 / 2:00</span>
+    <button id="fs">전체화면</button>
+  </div>
+  <div class="notes">
+    <div><b>Story</b>조율음 A 하나 → 처음 만나는 악기 → 1:1 레슨·파트·합주 → 교내외 무대 → 정기연주회 → 2027 신입생 모집.</div>
+    <div><b>BGM</b>120 BPM 오리지널 곡. 피아노·현·피치카토·팀파니까지 샘플 없이 코드로 합성해서 저작권 걱정이 없습니다.</div>
+    <div><b>Photos</b>2025–2026 학교 행사 사진. 컷 전환·줌·핑크 프레임이 킥·클랩·피아노 음에 맞춰 움직입니다.</div>
+  </div>
+</div>
+
+<script>
+/*CONFIG*/
+const EV = /*EVENTS*/null;
+const AUDIO_B64 = "/*AUDIO*/";
+const PHOTOS = /*PHOTOS*/{};
+
+const W=1920,H=1080, BPM=120, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=120;
+const BK='#050505', WH='#F5F5F0', PK='#FF2E8F', GR='#2E2E2E';
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const FF={BHS:"'Black Han Sans','Noto Sans KR',sans-serif", AN:"'Anton',Impact,sans-serif", MO:"'DM Mono',ui-monospace,monospace", NS:"'Noto Sans KR',sans-serif", NSB:"'Noto Sans KR',sans-serif", NSX:"'Noto Sans KR',sans-serif"};
+const FW={BHS:'400',AN:'400',MO:'500',NS:'500',NSB:'700',NSX:'900'};
+
+const tb=(bar,s=0)=>bar*BAR+s*S16;
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const prog=(t,t0,d)=>clamp((t-t0)/d);
+const eOutExpo=x=>x>=1?1:1-Math.pow(2,-10*x);
+const eInExpo=x=>x<=0?0:Math.pow(2,10*x-10);
+const eOutBack=x=>{const c1=2.2,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const eOutCubic=x=>1-Math.pow(1-x,3);
+const eInOut=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const hash=x=>{const s=Math.sin(x*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const tOf=v=>Array.isArray(v)?v[0]:v;
+function last(arr,t){let r=null;for(const v of arr){if(tOf(v)<=t)r=v;else break;}return r}
+function env(arr,t,k){const v=last(arr,t);return v==null?0:Math.exp(-(t-tOf(v))*k)}
+function countIn(arr,t0,t){let n=0;for(const v of arr){const x=tOf(v);if(x>=t0&&x<=t)n++}return n}
+const inBars=(t,a,b)=>t>=tb(a)&&t<tb(b);
+const SEC=EV.SEC;
+
+// ---------- 그리기 도구 ----------
+function T(s,x,y,size,o={}){
+  const {f='BHS',c=WH,a='center',al=1,sc=1,rot=0,ls=0,stroke=0,base='middle',sh=0}=o;
+  if(al<=0.001||sc<=0.001||!s)return;
+  ctx.save();ctx.globalAlpha*=Math.min(1,al);ctx.translate(x,y);ctx.rotate(rot);ctx.scale(sc,sc);
+  ctx.font=`${FW[f]} ${size}px ${FF[f]}`;ctx.textAlign=a;ctx.textBaseline=base;ctx.letterSpacing=ls+'px';
+  if(sh){ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=sh;ctx.shadowOffsetY=sh/6}
+  if(stroke){ctx.lineWidth=stroke;ctx.strokeStyle=c;ctx.lineJoin='round';ctx.strokeText(s,0,0)}
+  else{ctx.fillStyle=c;ctx.fillText(s,0,0)}
+  ctx.restore();
+}
+function measure(s,size,f='BHS',ls=0){ctx.save();ctx.font=`${FW[f]} ${size}px ${FF[f]}`;ctx.letterSpacing=ls+'px';const w=ctx.measureText(s).width;ctx.restore();return w}
+function slam(s,x,y,size,t,t0,o={}){
+  if(t<t0)return;const d=o.d||0.22,p=prog(t,t0,d),from=o.from??0.6;
+  T(s,x,y,size,{...o,sc:(o.sc||1)*(1+from*(1-eOutExpo(p))),al:(o.al??1)*Math.min(1,p*5)});
+}
+// 아래에서 올라오며 나타나기 (마스크)
+function rise(s,x,y,size,t,t0,o={}){
+  if(t<t0)return;const p=eOutExpo(prog(t,t0,o.d||0.5));const hgt=size*1.3;
+  ctx.save();const w=measure(s,size,o.f||'BHS',o.ls||0)+40;const a=o.a||'left';
+  const lx=a==='left'?x-20:a==='right'?x-w+20:x-w/2;
+  ctx.beginPath();ctx.rect(lx,y-hgt/2-10,w,hgt+20);ctx.clip();
+  T(s,x,y+(1-p)*hgt,size,{...o,a,al:(o.al??1)});ctx.restore();
+}
+function chip(s,x,y,size,t,t0,o={}){ // 핑크 라벨
+  if(t<t0)return 0;const f=o.f||'BHS',pad=size*.42,w=measure(s,size,f,o.ls||0)+pad*2,h=size*1.45;
+  const p=eOutExpo(prog(t,t0,o.d||0.3));const a=o.al??1;
+  ctx.save();ctx.globalAlpha*=a;ctx.fillStyle=o.bg||PK;ctx.fillRect(x,y-h/2,w*p,h);
+  ctx.beginPath();ctx.rect(x,y-h/2,w*p,h);ctx.clip();
+  T(s,x+pad,y+size*.04,size,{f,a:'left',c:o.c||BK,ls:o.ls||0});ctx.restore();return w;
+}
+function line(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function circle(x,y,r,fill,stroke,lw=2){if(r<=0)return;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}}
+function plus(x,y,r,rot,col,lw=8){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.lineCap='square';line(-r,0,r,0);line(0,-r,0,r);ctx.restore()}
+function notehead(x,y,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(-0.38);ctx.scale(s,s);ctx.beginPath();ctx.ellipse(0,0,28,20,0,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.restore()}
+function eighth(x,y,s,col){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  notehead(0,0,1,col);ctx.fillStyle=col;ctx.fillRect(22,-150,8,152);
+  ctx.beginPath();ctx.moveTo(30,-150);ctx.bezierCurveTo(40,-110,90,-100,70,-40);ctx.bezierCurveTo(80,-90,50,-100,30,-110);ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+function grad(y0,y1,a0,a1){const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,`rgba(5,5,5,${a0})`);g.addColorStop(1,`rgba(5,5,5,${a1})`);ctx.fillStyle=g;ctx.fillRect(0,Math.min(y0,y1),W,Math.abs(y1-y0))}
+function shade(a){ctx.fillStyle=`rgba(5,5,5,${a})`;ctx.fillRect(0,0,W,H)}
+
+// ---------- 사진 ----------
+const IMG={};
+const has=k=>!!IMG[k];
+const pick=(...ks)=>ks.find(has)||ks[ks.length-1];
+// 켄 번스 줌 + 초점(fx,fy) + 킥 펀치
+function photo(k,t,t0,dur,o={}){
+  const im=IMG[k];if(!im)return;
+  const [x,y,w,h]=o.r||[0,0,W,H];
+  const e=eInOut(clamp((t-t0)/dur));
+  const z=(o.z0??1.04)+((o.z1??1.13)-(o.z0??1.04))*e+(o.punch||0);
+  const s=Math.max(w/im.width,h/im.height)*z,dw=im.width*s,dh=im.height*s,mx=(dw-w)/2,my=(dh-h)/2;
+  let ox=(0.5-(o.fx??.5))*dw*.9+(o.px||0)*(e-.5)*mx, oy=(0.5-(o.fy??.45))*dh*.9+(o.py||0)*(e-.5)*my;
+  ox=clamp(ox,-mx,mx);oy=clamp(oy,-my,my);
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+  ctx.globalAlpha*=(o.al??1);if(o.filter)ctx.filter=o.filter;
+  ctx.drawImage(im,x+w/2-dw/2+ox,y+h/2-dh/2+oy,dw,dh);ctx.restore();
+}
+function kickPunch(t,amt=.03){return amt*env(EV.kick,t,8)}
+// 마디마다 사진 한 장, 전환 방식(tr)을 골라서
+function shot(list,t,t0,per,o={}){
+  const lt=t-t0;if(lt<0)return -1;let i=Math.min(list.length-1,Math.floor(lt/per));
+  const it=j=>typeof list[j]==='string'?{k:list[j]}:list[j];
+  const cur=it(i),ts=t0+i*per,tr=cur.tr||o.tr||'cut',d=o.td||0.32,p=prog(t,ts,d);
+  const opt=j=>({...o,...it(j),punch:(o.punch?kickPunch(t,o.punch):0)});
+  if(i>0&&p<1&&tr!=='cut'){
+    photo(it(i-1).k,t,ts-per,per+d,opt(i-1));
+    ctx.save();const q=eOutExpo(p);ctx.beginPath();
+    if(tr==='fade'){ctx.globalAlpha=q;ctx.rect(0,0,W,H)}
+    else if(tr==='wipe'){ctx.rect(0,0,W*q,H)}
+    else if(tr==='wipeL'){ctx.rect(W*(1-q),0,W*q,H)}
+    else if(tr==='iris'){ctx.arc(o.cx??960,o.cy??540,1150*q,0,Math.PI*2)}
+    else if(tr==='split'){ctx.rect(0,0,W,H/2*q);ctx.rect(0,H-H/2*q,W,H/2*q)}
+    ctx.clip();photo(cur.k,t,ts,per+d,opt(i));ctx.restore();
+    if(tr==='wipe'||tr==='wipeL'){ctx.fillStyle=PK;const xx=tr==='wipe'?W*q:W*(1-q);ctx.fillRect(xx-10,0,20,H)}
+  }else photo(cur.k,t,ts,per+d,opt(i));
+  return i;
+}
+function frame(a,wd=22){if(a<=0.01)return;ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=PK;ctx.lineWidth=wd;ctx.strokeRect(wd/2,wd/2,W-wd,H-wd);ctx.restore()}
+
+// ============ 장면 ============
+// 0:00–0:12  조율음 → "처음엔" → "3년 뒤"
+function sIntro(t){
+  if(t<tb(2)){ // 조율: 음마다 사인파 한 줄
+    const waves=EV.tune.filter(v=>v[0]<tb(2));
+    waves.forEach(([t0,m,len],i)=>{
+      if(t<t0)return;const lt=t-t0,a=Math.min(1,lt/.25)*(lt>len?Math.exp(-(lt-len)*2.5):1);
+      const y=540+[0,-70,70,-140][i],amp=[46,26,26,18][i]*a,fq=[.012,.006,.0085,.016][i];
+      ctx.save();ctx.strokeStyle=i?WH:PK;ctx.globalAlpha=i?.55*a:a;ctx.lineWidth=i?2:5;ctx.beginPath();
+      const x0=W/2-W/2*eOutExpo(Math.min(1,lt/.6)),x1=W-x0;
+      for(let x=x0;x<=x1;x+=6){const yy=y+Math.sin(x*fq-lt*18)*amp*Math.sin(Math.PI*(x-x0)/(x1-x0||1));x===x0?ctx.moveTo(x,yy):ctx.lineTo(x,yy)}
+      ctx.stroke();ctx.restore();
+    });
+    const out=1-prog(t,tb(1,12),.5);
+    T('A = 440 Hz',960,300,34,{f:'MO',c:PK,ls:8,al:prog(t,.3,.6)*out});
+    rise('모든 오케스트라는',960,770,54,t,tb(0,12),{f:'NS',a:'center',al:out});
+    rise('한 음에서 시작합니다',960,860,92,t,tb(1,2),{a:'center',al:out});
+    return;
+  }
+  // 아이리스 사진: 피아노 음마다 조금씩 커짐
+  const phase2=t>=tb(4),t0=phase2?tb(4):tb(2),notes=countIn(EV.piano,t0,t);
+  const lastN=last(EV.piano,t),pop=lastN?Math.exp(-(t-lastN[0])*9):0;
+  let cx=1310,cy=540,r=Math.min(380,150+notes*22)+pop*14;
+  if(phase2){const g=eInOut(prog(t,tb(5),BAR*.95));cx+= (960-cx)*g;r=r+(1200-r)*g}
+  const inT=phase2?0:eOutBack(prog(t,tb(2),.5));
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,r*(phase2?1:inT),0,Math.PI*2);ctx.clip();
+  photo(phase2?'hanmadang25-03':'orient-02',t,t0,BAR*2.2,{z0:1.25,z1:1.1,fx:phase2?.5:.3,fy:.4,filter:phase2?'saturate(1.15)':'grayscale(1) contrast(1.1)'});
+  ctx.restore();
+  circle(cx,cy,r*(phase2?1:inT)+10+pop*10,null,PK,4+pop*4);
+  const lx=150,fade=phase2?1-prog(t,tb(5,8),.4):1-prog(t,tb(3,14),.25);
+  ctx.save();ctx.globalAlpha=fade;
+  if(!phase2){
+    rise('처음엔,',lx,400,120,t,tb(2),{});
+    rise('악기 이름도',lx,560,120,t,tb(2,10),{});
+    rise('몰랐어요.',lx,720,120,t,tb(3,2),{c:PK});
+  }else{
+    grad(0,H,0,0);ctx.fillStyle='rgba(5,5,5,.35)';ctx.fillRect(0,0,W*.62,H);
+    rise('그런데 3년 뒤,',lx,420,110,t,tb(4,2),{sh:30});
+    rise('이런 무대에',lx,580,130,t,tb(4,10),{sh:30});
+    rise('섭니다.',lx,740,130,t,tb(5,0),{c:PK,sh:30});
+  }
+  ctx.restore();
+}
+// 0:12–0:16  타이틀
+function sTitle(t){
+  const bgs=['hanmadang25-04','busk25-01','camp26-07','songjeong26-01'];
+  const i=Math.min(3,Math.floor((t-tb(6))/1));
+  photo(bgs[i],t,tb(6)+i,1.2,{z0:1.1,z1:1.18,filter:'grayscale(1) brightness(.5)'});
+  shade(.45);
+  const p=last(EV.piano,t),pe=p?Math.exp(-(t-p[0])*6):0;
+  for(let j=0;j<6;j++){const rr=(t-tb(6))*260+j*220;ctx.globalAlpha=.25*(1-rr/1300);if(rr<1300)circle(960,540,rr,null,PK,2);ctx.globalAlpha=1}
+  chip('경북 유일 음악중점학교',610,300,44,t,tb(6),{f:'BHS'});
+  slam('광평중학교',960,470,210,t,tb(6,2),{from:.5,sh:40});
+  const wp=eOutExpo(prog(t,tb(6,10),.3));ctx.fillStyle=PK;ctx.fillRect(960-640*wp,610,1280*wp,210);
+  if(t>tb(6,11))slam('음악중점반',960,720,190,t,tb(6,11),{c:BK,from:.3});
+  T('GWANGPYEONG MIDDLE SCHOOL · MUSIC FOCUS CLASS',960,900,28,{f:'MO',ls:6,al:prog(t,tb(7),.5)*.85});
+  circle(960,960,6+pe*10,PK);
+  // 0:15.5 → 다음 장면으로 핑크 막
+  const e=prog(t,tb(7,12),BEAT);if(e>0){ctx.fillStyle=PK;ctx.fillRect(0,H*(1-eInExpo(e)),W,H)}
+}
+// 0:16–0:32  시작 (신입생 오리엔테이션)
+function sStart(t){
+  const b=Math.floor(t/BAR);
+  if(b<10){ // 처음 만나는 악기
+    shot([{k:'orient-06',fx:.4},{k:'orient-07',fx:.55,tr:'wipe'}],t,tb(8),BAR,{z0:1.03,z1:1.12});
+    grad(H*.55,H,0,.85);
+    rise('처음 만나는 악기',120,860,110,t,tb(8,2),{sh:20});
+    T('신입생 오리엔테이션  2025.12',124,960,34,{f:'MO',a:'left',ls:2,al:prog(t,tb(8,6),.4)});
+    const cover=1-prog(t,tb(8),.35);if(cover>0){ctx.fillStyle=PK;ctx.fillRect(0,0,W,H*cover)}
+  }else if(b<12){ // 4개 계열
+    const fam=[['orient-03','현악','STRINGS',.5,.4],['orient-04','목관','WOODWINDS',.72,.4],['orient-08','금관','BRASS',.35,.5],['orient-09','타악','PERCUSSION',.4,.6]];
+    fam.forEach(([k,ko,en,fx,fy],i)=>{
+      const t0=tb(10)+i*BEAT*2,p=eOutExpo(prog(t,t0,.45));if(p<=0)return;
+      const x=i*480,hh=H*p;
+      photo(k,t,t0,BAR*2,{r:[x,H-hh,480,hh],fx,fy,z0:1.15,z1:1.02});
+      ctx.fillStyle='rgba(5,5,5,.2)';ctx.fillRect(x,H-hh,480,hh);
+      if(i)ctx.fillStyle=BK,ctx.fillRect(x-3,0,6,H);
+      chip(ko,x+32,H-150,64,t,t0+.25);
+      T(en,x+36,H-72,26,{f:'MO',a:'left',ls:5,al:prog(t,t0+.4,.3),sh:10});
+    });
+    T('현악 · 목관 · 금관 · 타악, 전공 악기 하나를 골라요',960,110,44,{f:'NSB',al:prog(t,tb(11,8),.4),sh:24});
+  }else if(b<14){ // 3년, 악기 하나
+    shot([{k:'orient-05',fx:.55,fy:.8},{k:'camp26-05',fx:.5,tr:'wipeL'}],t,tb(12),BAR,{z0:1.02,z1:1.12});
+    ctx.fillStyle='rgba(5,5,5,.55)';ctx.fillRect(0,0,860,H);
+    rise('3년,',110,330,150,t,tb(12,1),{c:PK});
+    rise('악기 하나를',110,500,120,t,tb(12,6),{});
+    rise('끝까지',110,650,120,t,tb(12,10),{});
+    T('3년 동안 전공 악기 1개를',114,800,40,{f:'NSB',a:'left',al:prog(t,tb(13),.4)});
+    T('전액 지원으로 배웁니다',114,858,40,{f:'NSB',a:'left',al:prog(t,tb(13,2),.4)});
+  }else{ // 환영합니다
+    photo('orient-10',t,tb(14),BAR*2,{z0:1.2,z1:1.04,fy:.55});
+    grad(H*.5,H,0,.85);
+    rise('신입생 여러분,',120,800,90,t,tb(14,2),{sh:20});
+    rise('환영합니다!',120,920,120,t,tb(14,8),{c:PK,sh:20});
+    const e=prog(t,tb(15,8),BAR/2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*eInExpo(e),H)}
+  }
+}
+// 0:32–0:56  성장 3단계
+const STEPS=[
+  ['01','1:1 전공 레슨','내 악기, 내 속도로',[{k:'camp26-06',fx:.4},{k:'orient-03',fy:.62}]],
+  ['02','파트 연습','같은 악기끼리, 한 소리로',[{k:'camp26-03',fx:.55},{k:'camp26-04',fx:.4}]],
+  ['03','오케스트라 합주','마침내, 하나의 음악',[{k:'camp26-07'},{k:'camp26-08',fx:.7}]],
+];
+function sGrow(t){
+  const b=Math.floor(t/BAR),si=Math.min(2,Math.floor((b-16)/4)),s0=tb(16+si*4),[num,ttl,sub,ph]=STEPS[si];
+  if(b===27){ // 빌드업: 박마다 컷
+    const L=['camp26-09','camp26-02','busk25-04','camp26-10'];const i=Math.min(3,Math.floor((t-tb(27))/BEAT));
+    photo(L[i],t,tb(27)+i*BEAT,BEAT,{z0:1.02+i*.03,z1:1.1+i*.03});
+    const e=Math.pow(prog(t,tb(27),BAR),3);shade(.15);
+    slam(['하나','둘','셋','넷'][i],960,540,260,t,tb(27)+i*BEAT,{c:i===3?PK:WH,sh:40,from:.8});
+    ctx.fillStyle=`rgba(255,255,255,${e*.9})`;ctx.fillRect(0,0,W,H);return;
+  }
+  const PW=660;
+  shot(ph,t,s0,BAR*2,{r:[PW,0,W-PW,H],z0:1.03,z1:1.12,tr:'fade',td:.4});
+  ctx.fillStyle=BK;ctx.fillRect(0,0,PW,H);
+  // 피치카토 = 음마다 점 하나
+  for(const [pt,m] of EV.pluck){if(pt>t||pt<t-1.2)continue;const a=t-pt,y=H-80-(m-55)*14-a*180;circle(PW+40+(m*37%(W-PW-80)),y,7*(1-a/1.2)+2,PK)}
+  const ip=eOutExpo(prog(t,s0,.5));
+  ctx.save();ctx.beginPath();ctx.rect(0,0,PW,H);ctx.clip();
+  T('STEP',90,210,40,{f:'MO',a:'left',ls:10,c:PK,al:ip});
+  T(num,80,400+(1-ip)*200,300,{f:'AN',a:'left',c:PK,al:ip});
+  ctx.restore();
+  rise(ttl,90,640,si===2?92:104,t,s0+BEAT,{});
+  T(sub,94,760,40,{f:'NSB',a:'left',c:'#cfcfca',al:prog(t,s0+BEAT*2,.4)});
+  for(let j=0;j<3;j++){ctx.fillStyle=j<=si?PK:GR;ctx.fillRect(94+j*110,880,90,10)}
+  T('2026 하계 오케스트라 캠프',94,950,26,{f:'MO',a:'left',ls:2,c:'#8a8a86',al:prog(t,s0+BEAT*3,.4)});
+}
+// 0:56–1:28  무대
+const STAGE=[ // 마디마다 사진 한 장 + 라벨
+  ['busk25-01','광평 버스킹','2025.05',{fy:.55}],['busk25-03','광평 버스킹','2025.05',{fx:.62}],
+  ['busk26-08','스승의 날 버스킹','2026.05',{fx:.55}],['busk26-03','2026 광평 버스킹','2026.05',{}],
+  ['piano26-03',"버스킹 '정오의 피아노'",'2026.09',{fx:.45}],['piano26-01',"버스킹 '정오의 피아노'",'2026.09',{}],
+  ['songjeong26-01','찾아가는 음악회 · 송정초','2026.07',{}],['songjeong26-02','찾아가는 음악회 · 송정초','2026.07',{fy:.6}],
+  ['kedu25-02','K-EDU EXPO 공연','2025.10',{fy:.6}],['kedu25-05','K-EDU EXPO 공연','2025.10',{fy:.6}],
+  ['parents26-01','학부모 예술 1일학교','2026.06',{}],['hanmadang25-05','경북 학교예술교육 한마당','2025.10',{}],
+  ['hanmadang25-06','경북 학교예술교육 한마당','2025.10',{fy:.6}],['hanmadang25-03','경북 학교예술교육 한마당','2025.10',{}],
+];
+const TRS=['cut','wipe','iris','split','wipeL','cut','iris','wipe','split','cut','wipeL','iris','cut','split'];
+const GRID=['busk25-09','songjeong26-05','busk25-05','piano25-01','busk26-01','hanmadang25-07','songjeong26-06','naorch26-04','nextclassic26-02','songjeong26-09','busk25-07','kedu25-07'];
+function sStage(t){
+  const b=Math.floor(t/BAR),i=b-28;
+  if(i<14){
+    const [k,ttl,date,o]=STAGE[i],ts=tb(b);
+    shot(STAGE.map((s,j)=>({k:s[0],...s[3],tr:TRS[j]})),t,tb(28),BAR,{z0:1.02,z1:1.1,punch:.035,td:.28});
+    grad(H*.6,H,0,.8);
+    const cl=last(EV.clap,t);frame(cl&&cl>=ts?Math.exp(-(t-cl)*7):0);
+    const newT=i===0||STAGE[i-1][1]!==ttl;
+    if(newT){chip(ttl,90,925,58,t,ts+.08);}else chip(ttl,90,925,58,t,-1,{d:.01});
+    T(date,94,1010,30,{f:'MO',a:'left',ls:4,al:newT?prog(t,ts+.3,.3):1,sh:12});
+    if(i===0){ // 첫 마디 "무대 위로"
+      const p=prog(t,tb(28),.2);shade(.35*(1-prog(t,tb(28,10),.4)));
+      slam('STAGE',960,470,330,t,tb(28),{f:'AN',stroke:6,c:PK,al:1-prog(t,tb(28,10),.3),from:1.2});
+      slam('무대 위로',960,560,150,t,tb(28,4),{sh:40,al:1-prog(t,tb(28,10),.3)});
+    }
+    // 리드 선율 = 오른쪽 위 음표
+    for(const [lt,m,d] of EV.lead){if(lt>t||lt<t-.9||lt<tb(28))continue;const a=t-lt;eighth(1640+(m-70)*18,380-(m-70)*14-a*120,.5,`rgba(255,46,143,${1-a/.9})`)}
+  }else{ // 12장 그리드 → 한 문장
+    const gw=W/4,gh=H/3;
+    GRID.forEach((k,j)=>{const t0=tb(42)+j*S16*2,p=eOutBack(prog(t,t0,.3));if(p<=0)return;const x=(j%4)*gw,y=Math.floor(j/4)*gh,s=p;
+      ctx.save();ctx.translate(x+gw/2,y+gh/2);ctx.scale(s,s);ctx.translate(-gw/2,-gh/2);photo(k,t,t0,BAR*2,{r:[4,4,gw-8,gh-8],z0:1.2,z1:1.05});ctx.restore()});
+    const q=prog(t,tb(43),.3);if(q>0){shade(.62*q);
+      rise('우리 학교에서, 이웃 학교로,',960,470,86,t,tb(43),{a:'center',sh:30});
+      rise('경북의 가장 큰 무대까지',960,600,104,t,tb(43,4),{a:'center',c:PK,sh:30});}
+  }
+}
+// 1:28–1:32  브레이크
+function sBreak(t){
+  photo('hanmadang25-04',t,tb(44),BAR*2,{z0:1.3,z1:1.12,filter:'brightness(.42) saturate(.9)'});
+  rise('그리고 1년에 한 번,',960,440,80,t,tb(44,1),{a:'center',f:'NSB'});
+  const s='가장 큰 무대',cl=EV.clap.filter(c=>c>=tb(45)).slice(0,6);
+  chars(s,960,620,170,t,tb(45),0,{times:[0,1,2,3,4,5].map(j=>(cl[j]??tb(45)+j*.2)-tb(45)),color:(i)=>i<2?WH:PK});
+  const e=Math.pow(prog(t,tb(45,8),BAR/2),2);ctx.fillStyle=`rgba(255,255,255,${e})`;ctx.fillRect(0,0,W,H);
+}
+function chars(str,x,y,size,t,t0,step,o={}){
+  const arr=[...str],ws=arr.map(ch=>measure(ch,size,o.f||'BHS'));const total=ws.reduce((a,b)=>a+b,0);let cx=x-total/2,j=0;
+  arr.forEach((ch,i)=>{if(ch!==' '){slam(ch,cx+ws[i]/2,y,size,t,t0+(o.times?o.times[j]:j*step),{...o,a:'center',c:o.color?o.color(j):WH,from:.9});j++}cx+=ws[i]});
+}
+// 1:32–1:48  정기연주회
+const YEARS=[['2021','창단연주회','신입생 35명의 첫 무대'],['2022','제1회 정기연주회',''],['2023','제2회 정기연주회',''],['2024','제3회 정기연주회',"'We Are United'"],['2025','제4회 정기연주회','2025. 12. 8.']];
+const CONCERT=()=>[pick('concert25-01','hanmadang25-07'),pick('concert25-02','hanmadang25-06'),pick('concert25-03','hanmadang25-03'),pick('concert25-04','camp26-07'),pick('concert25-05','hanmadang25-05')];
+function sClimax(t){
+  const b=Math.floor(t/BAR),C=CONCERT();
+  if(b===46){
+    photo(C[0],t,tb(46),BAR,{z0:1.02,z1:1.1,punch:kickPunch(t,.04)});shade(.3);
+    slam('정기연주회',960,500,230,t,tb(46),{sh:50,from:.9});
+    T('ANNUAL CONCERT',960,670,54,{f:'AN',c:PK,ls:22,al:prog(t,tb(46,4),.3),sh:20});
+    return;
+  }
+  if(b<52){ // 연혁: 마디마다 한 해
+    const yi=b-47,[yr,ttl,sub]=YEARS[yi],ts=tb(b);
+    photo(C[Math.min(4,yi)],t,tb(47),BAR*5,{z0:1.18,z1:1.02,px:.8,filter:'brightness(.55)',punch:kickPunch(t,.025)});
+    grad(0,H,.2,.7);
+    // 큰 연도 숫자 (아래에서 굴러 올라옴)
+    ctx.save();ctx.beginPath();ctx.rect(0,140,W,420);ctx.clip();
+    const p=eOutExpo(prog(t,ts,.35));
+    if(yi>0)T(YEARS[yi-1][0],120,350-p*420,330,{f:'AN',a:'left',c:WH,al:1-p});
+    T(yr,120,350+(1-p)*420,330,{f:'AN',a:'left',c:yi===4?PK:WH});
+    ctx.restore();
+    rise(ttl,130,640,84,t,ts+BEAT,{});
+    if(sub)T(sub,134,740,40,{f:'NSB',a:'left',c:'#d8d8d2',al:prog(t,ts+BEAT*2,.4)});
+    if(yi===3){ // 2024 연주회 사진 두 장 (경북교육 웹진 수록)
+      [['concert24-a',1080,210,720,300,-.04],['concert24-b',1180,500,620,300,.03]].forEach(([k,x,y,w,h,r],j)=>{
+        const q=eOutBack(prog(t,ts+BEAT*(1+j),.35));if(q<=0||!has(k))return;
+        ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate(r);ctx.scale(q,q);ctx.fillStyle=WH;ctx.fillRect(-w/2-12,-h/2-12,w+24,h+24);
+        photo(k,t,ts,BAR,{r:[-w/2,-h/2,w,h],z0:1,z1:1.04});ctx.restore()});
+    }
+    // 타임라인 바
+    const x0=130,x1=1790,y=930;ctx.strokeStyle='#555';ctx.lineWidth=3;line(x0,y,x1,y);
+    const pp=eOutExpo(prog(t,ts,.5));ctx.strokeStyle=PK;ctx.lineWidth=6;line(x0,y,x0+(x1-x0)*(yi-1+pp)/4,y);
+    YEARS.forEach(([yy],j)=>{const x=x0+(x1-x0)*j/4,on=j<=yi;circle(x,y,on?14:9,on?PK:BK,on?PK:'#777',3);T(yy,x,y+50,28,{f:'MO',c:on?WH:'#777'})});
+    return;
+  }
+  // 35명 → 100여 명
+  photo(C[4],t,tb(52),BAR*2,{z0:1.02,z1:1.12,punch:kickPunch(t,.035)});shade(.4);
+  const k=Math.min(1,prog(t,tb(52,2),BAR*1.2)),n=Math.round(35+65*eOutCubic(k));
+  rise('35명으로 시작해',960,230,76,t,tb(52),{a:'center',f:'NSB',sh:20});
+  T(String(n)+(n>=100?'+':''),960,560,300,{f:'AN',c:n>=100?PK:WH,sh:40,sc:1+.08*env(EV.kick,t,10)});
+  rise('100여 명의 오케스트라로',960,840,96,t,tb(53),{a:'center',sh:30});
+  const e=Math.pow(prog(t,tb(53,12),BEAT),2);ctx.fillStyle=`rgba(255,255,255,${e})`;ctx.fillRect(0,0,W,H);
+}
+// 1:48–2:00  엔딩
+function sOutro(t){
+  if(t<tb(56)){
+    photo('camp26-01',t,tb(54),BAR*2.4,{z0:1.02,z1:1.12,fy:.55});grad(H*.35,H,0,.85);
+    rise('3년, 악기 하나.',120,780,120,t,tb(54),{sh:30});
+    rise('평생 함께할 무대.',120,930,120,t,tb(54,8),{c:PK,sh:30});
+    const e=prog(t,tb(55,8),BEAT*2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(W*(1-eInExpo(e)),0,W,H)}
+    return;
+  }
+  const ts=tb(56),fx=1080;
+  photo('orient-10',t,ts,BAR*4,{r:[fx,0,W-fx,H],z0:1.15,z1:1.05,fx:.45,filter:'saturate(1.05)'});
+  ctx.fillStyle=PK;ctx.fillRect(fx-12,0,12,H*eOutExpo(prog(t,ts,.5)));
+  let y=190;
+  chip('2027 NEW MEMBERS',110,y,32,t,ts,{f:'MO',ls:4});y+=110;
+  const ttl=CONFIG.recruitTitle.split(' ');const mid=Math.ceil(ttl.length/2);
+  rise(ttl.slice(0,mid).join(' '),110,y,84,t,ts+BEAT,{});y+=100;
+  rise(ttl.slice(mid).join(' '),110,y,84,t,ts+BEAT*1.5,{c:PK});y+=110;
+  const lines=[CONFIG.briefing,CONFIG.recruitCount,CONFIG.target&&('대상  '+CONFIG.target)].filter(Boolean);
+  lines.forEach((s,j)=>{T(s,114,y,38,{f:'NSB',a:'left',al:prog(t,ts+BEAT*(3+j),.4)});y+=62});
+  y+=40;
+  T('문의',114,y,30,{f:'MO',a:'left',c:'#8a8a86',ls:4,al:prog(t,tb(57,4),.4)});
+  T(CONFIG.phone,110,y+78,100,{f:'AN',a:'left',c:PK,al:prog(t,tb(57,4),.4)});
+  T('구미 광평중학교  ·  '+CONFIG.address,114,y+170,30,{f:'NS',a:'left',c:'#cfcfca',al:prog(t,tb(57,8),.4)});
+  // 마지막 A음: 핑크 사인파 한 줄
+  const tn=EV.tune[EV.tune.length-1];
+  if(t>tn[0]){const lt=t-tn[0],a=Math.min(1,lt/.3);ctx.save();ctx.strokeStyle=PK;ctx.lineWidth=4;ctx.globalAlpha=a;ctx.beginPath();
+    for(let x=0;x<=fx;x+=6){const yy=1010+Math.sin(x*.012-lt*18)*18*a*Math.sin(Math.PI*x/fx);x?ctx.lineTo(x,yy):ctx.moveTo(x,yy)}ctx.stroke();ctx.restore()}
+  const f=prog(t,DUR-1.4,1.3);if(f>0){ctx.fillStyle=`rgba(5,5,5,${f})`;ctx.fillRect(0,0,W,H)}
+}
+
+const SCENES=[[0,sIntro],[6,sTitle],[8,sStart],[16,sGrow],[28,sStage],[44,sBreak],[46,sClimax],[54,sOutro]];
+const grain=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),d=g.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}g.putImageData(d,0,0);return c})();
+const isDrop=b=>(b>=SEC.stage[0]&&b<SEC.stage[1])||(b>=SEC.climax[0]&&b<SEC.climax[1]);
+function hud(t){ // 좌상단 워터마크 (사진 구간에서만)
+  if(t<tb(8)||t>=tb(56))return;const a=Math.min(prog(t,tb(8),.6),1-prog(t,tb(55,8),.4));
+  T('GWANGPYEONG MS  ·  MUSIC FOCUS CLASS',60,58,20,{f:'MO',a:'left',ls:4,al:.75*a,sh:10});
+  circle(44,58,6,PK);
+}
+function render(t){
+  t=clamp(t,0,DUR-1e-4);
+  const bar=Math.floor(t/BAR),cr=last(EV.crash,t);
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';
+  ctx.fillStyle=BK;ctx.fillRect(0,0,W,H);
+  const crE=cr!=null?Math.exp(-(t-cr)*3):0,fr=Math.floor(t*60);
+  const build=(bar===27?Math.pow(prog(t,tb(27),BAR),2)*6:0)+(bar===45?Math.pow(prog(t,tb(45),BAR),2)*5:0);
+  const sh=crE*14+build;
+  ctx.save();ctx.translate((hash(fr)-.5)*2*sh,(hash(fr+99)-.5)*2*sh);
+  let sc=SCENES[0];for(const s of SCENES)if(bar>=s[0])sc=s;
+  sc[1](t);
+  ctx.restore();
+  if(cr!=null){const p=prog(t,cr,.32);if(p<1){ctx.fillStyle=PK;ctx.globalAlpha=Math.pow(1-p,2)*.85;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}}
+  hud(t);
+  const vg=ctx.createRadialGradient(960,540,500,960,540,1200);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=.05;ctx.globalCompositeOperation='overlay';const ox=-Math.floor(hash(fr)*256),oy=-Math.floor(hash(fr+7)*256);
+  for(let x=ox;x<W;x+=256)for(let y=oy;y<H;y+=256)ctx.drawImage(grain,x,y);
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+}
+
+// ---------- 플레이어 ----------
+const POSTER=14.6;
+let actx=null,abuf=null,src=null,startAt=0,offset=0,playing=false;
+const $=id=>document.getElementById(id);
+function fmt(s){s=Math.max(0,Math.min(DUR,s));return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
+function now(){return playing?Math.min(DUR,actx.currentTime-startAt-(actx.outputLatency||0)):offset}
+async function ensureAudio(){
+  if(abuf)return;actx=new (window.AudioContext||window.webkitAudioContext)();
+  const bin=Uint8Array.from(atob(AUDIO_B64),c=>c.charCodeAt(0));abuf=await actx.decodeAudioData(bin.buffer);
+}
+async function play(){
+  await ensureAudio();if(actx.state==='suspended')await actx.resume();
+  if(offset>=DUR-0.05)offset=0;
+  src=actx.createBufferSource();src.buffer=abuf;src.connect(actx.destination);
+  startAt=actx.currentTime-offset;src.start(0,offset);playing=true;ui();
+  src.onended=()=>{if(playing&&now()>=DUR-0.1){playing=false;offset=DUR;ui()}};
+}
+function pause(){if(!playing)return;offset=now();playing=false;try{src.stop()}catch(e){}ui()}
+function ui(){$('play').textContent=playing?'❚❚ 일시정지':'▶ 재생';$('bigPlay').hidden=playing}
+function seek(s){const was=playing;pause();offset=clamp(s,0,DUR);render(offset);tick();if(was)play()}
+function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 2:00';$('seek').setAttribute('aria-valuenow',Math.round(t))}
+function loop(){if(playing){const t=now();render(t);tick();if(t>=DUR){playing=false;offset=DUR;ui()}}requestAnimationFrame(loop)}
+$('bigPlay').onclick=()=>{offset=offset>=DUR-0.05||offset===POSTER?0:offset;play()};
+$('play').onclick=()=>{if(playing)pause();else{if(offset===POSTER)offset=0;play()}};
+$('restart').onclick=()=>{pause();offset=0;play()};
+$('seek').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();seek((e.clientX-r.left)/r.width*DUR)};
+$('seek').onkeydown=e=>{if(e.key==='ArrowRight')seek(now()+5);if(e.key==='ArrowLeft')seek(now()-5)};
+$('cv').onclick=()=>{playing?pause():$('play').click()};
+$('fs').onclick=()=>{const s=$('stage');(s.requestFullscreen?s.requestFullscreen():Promise.reject()).catch(()=>{})};
+async function loadPhotos(){
+  // 한꺼번에 decode하면 큰 사진이 실패할 수 있어서 한 장씩(실패하면 한 번 더) 불러옵니다
+  for(const [k,src] of Object.entries(PHOTOS)){
+    for(let tryN=0;tryN<2&&!IMG[k];tryN++){const im=new Image();im.src=src;try{await im.decode();IMG[k]=im}catch(e){await new Promise(r=>setTimeout(r,50))}}
+  }
+}
+window.__render=render;
+window.__ready=Promise.all([document.fonts.ready.then(()=>Promise.all(['BHS','AN','MO','NS','NSB'].map(f=>document.fonts.load(`${FW[f]} 40px ${FF[f]}`,'가A1')))),loadPhotos()])
+  .then(()=>{$('loading').hidden=true;offset=POSTER;render(POSTER);return true});
+requestAnimationFrame(loop);
+</script>
+</html>

@@ -1,5 +1,5 @@
 // src.html에 폰트 서브셋·BGM·비트 이벤트·사진을 넣어서 단일 HTML로 빌드합니다.
-// node build.mjs        → gwangpyeong-music-promo-v2.html (웹 재생용, 사진 1280px)
+// node build.mjs        → gwangpyeong-music-promo-v2.html (웹 재생용, 사진 1152px)
 // node build.mjs --hi   → render.html (영상 렌더용, 사진 원본 1920px)
 import fs from 'fs'; import { execFileSync } from 'child_process';
 const HI = process.argv.includes('--hi');
@@ -24,7 +24,7 @@ if (!fs.existsSync('bgm.mp3') || fs.statSync('bgm.mp3').mtimeMs < fs.statSync('b
 const mp3 = fs.readFileSync('bgm.mp3').toString('base64');
 const ev = fs.readFileSync('events.json', 'utf8');
 
-// 사진: ../photos/*.jpg → 웹용은 1280px로 줄여서 넣기
+// 사진: ../photos/*.jpg → 웹용은 1152px로 줄여서 넣기
 const dir = '../photos', photos = {};
 fs.mkdirSync('.web', { recursive: true });
 for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.jpg')).sort()) {
@@ -32,7 +32,7 @@ for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.jpg')).sort()) {
   let p = `${dir}/${f}`;
   if (!HI) {
     const o = `.web/${f}`;
-    if (!fs.existsSync(o)) execFileSync(FF, ['-y', '-loglevel', 'error', '-i', p, '-vf', "scale='min(1280,iw)':-2", '-q:v', '4', o]);
+    if (!fs.existsSync(o)) execFileSync(FF, ['-y', '-loglevel', 'error', '-i', p, '-vf', "scale='min(1152,iw)':-2", '-q:v', '5', o]);
     p = o;
   }
   photos[key] = 'data:image/jpeg;base64,' + fs.readFileSync(p).toString('base64');
