@@ -197,7 +197,7 @@ function sIntro(t){
   if(phase2){const g=eInOut(prog(t,tb(5),BAR*.95));cx+= (960-cx)*g;r=r+(1200-r)*g}
   const inT=phase2?0:eOutBack(prog(t,tb(2),.5));
   ctx.save();ctx.beginPath();ctx.arc(cx,cy,r*(phase2?1:inT),0,Math.PI*2);ctx.clip();
-  photo(phase2?'hanmadang25-03':'orient-02',t,t0,BAR*2.2,{z0:1.25,z1:1.1,fx:phase2?.5:.3,fy:.4,filter:phase2?'saturate(1.15)':'grayscale(1) contrast(1.1)'});
+  photo(phase2?'hanmadang25-03':'orient-06',t,t0,BAR*2.2,{z0:1.25,z1:1.1,fx:phase2?.5:.42,fy:phase2?.4:.95,filter:phase2?'saturate(1.15)':'grayscale(1) contrast(1.1)'});
   ctx.restore();
   circle(cx,cy,r*(phase2?1:inT)+10+pop*10,null,PK,4+pop*4);
   const lx=150,fade=phase2?1-prog(t,tb(5,8),.4):1-prog(t,tb(3,14),.25);
@@ -235,7 +235,7 @@ function sTitle(t){
 function sStart(t){
   const b=Math.floor(t/BAR);
   if(b<10){ // 처음 만나는 악기
-    shot([{k:'orient-06',fx:.4},{k:'orient-07',fx:.55,tr:'wipe'}],t,tb(8),BAR,{z0:1.03,z1:1.12});
+    shot([{k:'orient-01',fx:.55},{k:'orient-07',fx:.55,tr:'wipe'}],t,tb(8),BAR,{z0:1.03,z1:1.12});
     grad(H*.55,H,0,.85);
     rise('처음 만나는 악기',120,860,110,t,tb(8,2),{sh:20});
     T('신입생 오리엔테이션  2025.12',124,960,34,{f:'MO',a:'left',ls:2,al:prog(t,tb(8,6),.4)});
@@ -338,7 +338,7 @@ function sStage(t){
 }
 // 1:28–1:32  브레이크
 function sBreak(t){
-  photo('hanmadang25-04',t,tb(44),BAR*2,{z0:1.3,z1:1.12,filter:'brightness(.42) saturate(.9)'});
+  stageBg(t,.55);
   rise('그리고 1년에 한 번,',960,440,80,t,tb(44,1),{a:'center',f:'NSB'});
   const s='가장 큰 무대',cl=EV.clap.filter(c=>c>=tb(45)).slice(0,6);
   chars(s,960,620,170,t,tb(45),0,{times:[0,1,2,3,4,5].map(j=>(cl[j]??tb(45)+j*.2)-tb(45)),color:(i)=>i<2?WH:PK});
@@ -350,19 +350,31 @@ function chars(str,x,y,size,t,t0,step,o={}){
 }
 // 1:32–1:48  정기연주회
 const YEARS=[['2021','창단연주회','신입생 35명의 첫 무대'],['2022','제1회 정기연주회',''],['2023','제2회 정기연주회',''],['2024','제3회 정기연주회',"'We Are United'"],['2025','제4회 정기연주회','2025. 12. 8.']];
-const CONCERT=()=>[pick('concert25-01','hanmadang25-07'),pick('concert25-02','hanmadang25-06'),pick('concert25-03','hanmadang25-03'),pick('concert25-04','camp26-07'),pick('concert25-05','hanmadang25-05')];
+// 정기연주회 사진(concert25-01~05)이 있으면 그 사진을, 없으면 사진 대신 무대 조명 그래픽을 씁니다
+const CONCERT=()=>['concert25-01','concert25-02','concert25-03','concert25-04','concert25-05'].map(k=>has(k)?k:null);
+function stageBg(t,dim=1){ // 막 + 스포트라이트 (킥에 맞춰 밝아짐)
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a0610');g.addColorStop(.62,'#0b0306');g.addColorStop(1,'#050505');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.globalAlpha=.5*dim;for(let i=0;i<24;i++){const x=i*80+40;const gg=ctx.createLinearGradient(x-40,0,x+40,0);gg.addColorStop(0,'rgba(0,0,0,.5)');gg.addColorStop(.5,'rgba(120,20,50,.35)');gg.addColorStop(1,'rgba(0,0,0,.5)');ctx.fillStyle=gg;ctx.fillRect(x-40,0,80,H*.66)}ctx.restore();
+  const k=env(EV.kick,t,5);ctx.save();ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<5;i++){const cx=260+i*350,sw=Math.sin(t*.7+i*1.7)*160,a=(.1+.12*k)*dim;
+    const gg=ctx.createLinearGradient(0,0,0,H*.8);gg.addColorStop(0,`rgba(255,${i%2?46:220},${i%2?143:200},${a*1.6})`);gg.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=gg;ctx.beginPath();ctx.moveTo(cx-18,0);ctx.lineTo(cx+18,0);ctx.lineTo(cx+sw+170,H*.8);ctx.lineTo(cx+sw-170,H*.8);ctx.closePath();ctx.fill()}
+  const fg=ctx.createRadialGradient(960,H*.8,40,960,H*.8,900);fg.addColorStop(0,`rgba(255,46,143,${(.22+.2*k)*dim})`);fg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=fg;ctx.fillRect(0,H*.45,W,H*.55);
+  for(let i=0;i<60;i++){const x=hash(i)*W,y=(hash(i+50)*H*.8+t*20*(.5+hash(i+9)))%(H*.8);circle(x,y,1.5+hash(i+3)*2,`rgba(255,255,255,${.25*dim})`)}
+  ctx.restore();
+}
 function sClimax(t){
   const b=Math.floor(t/BAR),C=CONCERT();
   if(b===46){
-    photo(C[0],t,tb(46),BAR,{z0:1.02,z1:1.1,punch:kickPunch(t,.04)});shade(.3);
+    if(C[0]){photo(C[0],t,tb(46),BAR,{z0:1.02,z1:1.1,punch:kickPunch(t,.04)});shade(.3)}else stageBg(t);
     slam('정기연주회',960,500,230,t,tb(46),{sh:50,from:.9});
     T('ANNUAL CONCERT',960,670,54,{f:'AN',c:PK,ls:22,al:prog(t,tb(46,4),.3),sh:20});
     return;
   }
   if(b<52){ // 연혁: 마디마다 한 해
     const yi=b-47,[yr,ttl,sub]=YEARS[yi],ts=tb(b);
-    photo(C[Math.min(4,yi)],t,tb(47),BAR*5,{z0:1.18,z1:1.02,px:.8,filter:'brightness(.55)',punch:kickPunch(t,.025)});
-    grad(0,H,.2,.7);
+    const ck=C[Math.min(4,yi)];
+    if(ck){photo(ck,t,tb(47),BAR*5,{z0:1.18,z1:1.02,px:.8,filter:'brightness(.55)',punch:kickPunch(t,.025)});grad(0,H,.2,.7)}else stageBg(t,.7);
     // 큰 연도 숫자 (아래에서 굴러 올라옴)
     ctx.save();ctx.beginPath();ctx.rect(0,140,W,420);ctx.clip();
     const p=eOutExpo(prog(t,ts,.35));
@@ -384,7 +396,7 @@ function sClimax(t){
     return;
   }
   // 35명 → 100여 명
-  photo(C[4],t,tb(52),BAR*2,{z0:1.02,z1:1.12,punch:kickPunch(t,.035)});shade(.4);
+  photo(C[4]||'camp26-07',t,tb(52),BAR*2,{z0:1.02,z1:1.12,punch:kickPunch(t,.035)});shade(.45);
   const k=Math.min(1,prog(t,tb(52,2),BAR*1.2)),n=Math.round(35+65*eOutCubic(k));
   rise('35명으로 시작해',960,230,76,t,tb(52),{a:'center',f:'NSB',sh:20});
   T(String(n)+(n>=100?'+':''),960,560,300,{f:'AN',c:n>=100?PK:WH,sh:40,sc:1+.08*env(EV.kick,t,10)});
