@@ -298,7 +298,7 @@ function sSpace(t){
     const cover=1-prog(t,t0,.35);if(cover>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*cover,H)}
     return;
   }
-  if(bt<16){ // 한 곳씩: 2박마다 전환 (휙 소리 + 종소리)
+  if(bt<16){ // 한 곳씩: 2박마다 전환
     const i=Math.min(SPACES.length-1,Math.floor((bt-6)/2)),ts=t0+BEAT*(6+i*2);
     shot(SPACES.map((s,j)=>({k:s[0],...s[3],tr:['wipe','iris','wipeL','split','wipe'][j]})),t,t0+BEAT*6,BEAT*2,{z0:1.03,z1:1.12,td:.3});
     grad(H*.6,H,0,.8);
@@ -306,10 +306,10 @@ function sSpace(t){
     chip(ko,90,925,58,t,ts+.06);
     T(en,94,1010,28,{f:'MO',a:'left',ls:4,al:prog(t,ts+.25,.3),sh:12});
     T(String(i+1).padStart(2,'0')+' / '+String(SPACES.length).padStart(2,'0'),1860,1010,28,{f:'MO',a:'right',c:PK,ls:4,sh:12});
-    const gl=last(EV.glock,t);frame(gl&&gl[0]>=ts?.6*Math.exp(-(t-gl[0])*8):0,14);
+    const pn=last(EV.piano,t);frame(pn&&pn[0]>=ts?.6*Math.exp(-(t-pn[0])*8):0,14);
     return;
   }
-  // 마지막 8박: 6장 그리드(사진마다 종소리) → 문장을 충분히 보여주고 → 성장 장면으로
+  // 마지막 8박: 6장 그리드 → 문장을 충분히 보여주고 → 성장 장면으로
   const gw=W/3,gh=H/2;
   SPGRID.forEach((k,j)=>{const tj=t0+BEAT*16+j*S16*.8,p=eOutBack(prog(t,tj,.3));if(p<=0)return;const x=(j%3)*gw,y=Math.floor(j/3)*gh;
     ctx.save();ctx.translate(x+gw/2,y+gh/2);ctx.scale(p,p);ctx.translate(-gw/2,-gh/2);photo(k,t,tj,BEAT*8,{r:[4,4,gw-8,gh-8],z0:1.15,z1:1.03});ctx.restore()});
