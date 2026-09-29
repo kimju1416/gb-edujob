@@ -1,10 +1,10 @@
-// 광평중 음악중점반 홍보영상 2편 BGM — 오리지널 합성 트랙 (120 BPM, 60마디 = 정확히 2분)
+// 광평중 음악중점반 홍보영상 2편 BGM — 오리지널 합성 트랙 (120 BPM, 66마디 = 정확히 2분 12초)
 // 외부 샘플 0개. 전부 코드로 합성해서 저작권 걱정 없이 써도 됩니다.
-// 흐름: 조율(A음) → 피아노 → 피치카토 → 비트 → 클라이맥스 → 엔딩
+// 흐름: 조율(A음) → 피아노 → 학교 음악 공간 → 피치카토 → 비트 → 클라이맥스 → 엔딩
 import fs from 'fs';
 
 const SR = 44100, BPM = 120, BEAT = 60 / BPM, BAR = BEAT * 4, S16 = BEAT / 4;
-const BARS = 60, DUR = BARS * BAR, N = Math.round(SR * DUR);
+const BARS = 66, DUR = BARS * BAR, N = Math.round(SR * DUR);
 const L = new Float32Array(N), R = new Float32Array(N);         // 드럼 버스
 const ML = new Float32Array(N), MR = new Float32Array(N);       // 음악 버스 (사이드체인 대상)
 const PL = new Float32Array(N), PR = new Float32Array(N);       // 피아노·현 버스 (덕킹 약하게)
@@ -14,12 +14,12 @@ const events = { kick: [], clap: [], hat: [], stab: [], lead: [], piano: [], plu
 // ---- 구성 (마디 번호) ----
 export const SEC = {
   intro: [0, 6],     // 0:00 조율음 → 피아노 솔로
-  start: [6, 16],    // 0:12 시작: 피아노 아르페지오 + 현 패드
-  grow: [16, 28],    // 0:32 성장: 피치카토, 킥이 조금씩
-  stage: [28, 44],   // 0:56 무대: 풀 비트
-  brk: [44, 46],     // 1:28 브레이크
-  climax: [46, 54],  // 1:32 클라이맥스
-  outro: [54, 60],   // 1:48 엔딩
+  start: [6, 20],    // 0:12 시작: 피아노 아르페지오 + 현 패드 (16~19마디: 학교 음악 공간)
+  grow: [20, 32],    // 0:40 성장: 피치카토, 킥이 조금씩
+  stage: [32, 48],   // 1:04 무대: 풀 비트
+  brk: [48, 50],     // 1:36 브레이크
+  climax: [50, 58],  // 1:40 클라이맥스
+  outro: [58, 66],   // 1:56 엔딩 (60~65마디: 모집 안내 카드 3장)
 };
 const inS = (b, s) => b >= SEC[s][0] && b < SEC[s][1];
 
@@ -34,7 +34,7 @@ for (let b = 0; b < BARS; b++) {
   else if (inS(b, 'grow')) n = ['Em', 'C', 'G', 'D'][b % 4];
   else if (inS(b, 'brk')) n = ['Em', 'C'][b % 2];
   else if (inS(b, 'climax')) n = ['C', 'D', 'G', 'Em', 'C', 'D', 'G', 'D'][b - SEC.climax[0]];
-  else if (inS(b, 'outro')) n = ['G', 'Cm7', 'Am', 'D', 'G', 'G'][b - SEC.outro[0]];
+  else if (inS(b, 'outro')) n = ['G', 'Cm7', 'Am', 'D', 'Em', 'C', 'G', 'G'][b - SEC.outro[0]];
   else n = ['G', 'DF', 'Em', 'C'][b % 4];
   PROG.push(n);
 }
@@ -276,6 +276,10 @@ for (let b = SEC.start[0]; b < SEC.start[1]; b++) {
   if (b >= 8) strings(T(b), ns.map(m => m - 12), BAR, { gain: 0.08, att: 0.6 });
   if (b >= 10 && b < 14) MEL[b % 4].forEach(([s, m, l]) => piano(T(b, s), m, l * S16 * 1.2, 0.8));
   if (b === 14 || b === 15) MEL[b % 4].forEach(([s, m, l]) => piano(T(b, s), m + 12, l * S16, 0.55));
+  if (b >= 16) { // 학교 음악 공간: 주제 선율 + 뒤 두 마디는 피치카토 예고
+    MEL[b % 4].forEach(([s, m, l]) => piano(T(b, s), m, l * S16 * 1.2, 0.7));
+    if (b >= 18) for (let e = 1; e < 8; e += 2) pluck(T(b, e * 2), ns[e % 4] + 12, 0.45, e % 4 === 1 ? 0.4 : -0.4);
+  }
 }
 riser(T(15), BAR, 0.6);
 
@@ -349,7 +353,7 @@ crash(T(SEC.climax[0] + 4), 1); timpani(T(SEC.climax[0] + 4), 43, 0.9);
     const [root, ns] = chordOf(b), last = b >= SEC.outro[1] - 2;
     strings(T(b), ns, last ? BAR * 1.8 : BAR, { gain: last ? 0.09 : 0.1, att: 0.4, rel: last ? 1.6 : 0.9 });
     if (!last || b === SEC.outro[1] - 2) piano(T(b), root, BAR * (last ? 3.5 : 1), 0.6);
-    if (b < SEC.outro[1] - 2) MEL[(b - b0 - 1) % 4].forEach(([s, m, l]) => piano(T(b, s), m, l * S16 * 1.3, 0.7));
+    if (b < SEC.outro[1] - 2) MEL[[0, 1, 2, 2, 3][b - b0 - 1]].forEach(([s, m, l]) => piano(T(b, s), m, l * S16 * 1.3, 0.7));
   }
   const bl = SEC.outro[1] - 2; // 마지막 G 코드를 아르페지오로 굴리고 여운
   [55, 59, 62, 67, 71, 74, 79].forEach((m, i) => piano(T(bl, i), m, BAR * 2.5 - i * S16, 0.55));

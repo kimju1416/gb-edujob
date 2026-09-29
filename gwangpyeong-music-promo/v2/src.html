@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>광평중 음악중점반 2편</title>
-<meta name="description" content="구미 광평중학교 음악중점반 2분 홍보영상 — 처음 악기를 잡은 날부터 정기연주회 무대까지 (사진 + 모션그래픽, 120 BPM 비트 싱크)">
+<meta name="description" content="구미 광평중학교 음악중점반 2분 12초 홍보영상 — 처음 악기를 잡은 날부터 정기연주회 무대까지, 학교 음악 공간과 2027 모집 안내 (사진 + 모션그래픽, 120 BPM 비트 싱크)">
 <style>
 /*FONTS*/
 :root{
@@ -39,22 +39,22 @@ canvas{display:block;width:100%;height:100%;object-fit:contain}
 <div class="wrap">
   <header>
     <h1>광평중학교 <b>음악중점반</b> · 2편</h1>
-    <span class="meta">Promo film · 2:00 · 16:9 · ♩=120</span>
+    <span class="meta">Promo film · 2:12 · 16:9 · ♩=120</span>
   </header>
   <div class="stage" id="stage">
-    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 2분 홍보영상"></canvas>
+    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 2분 12초 홍보영상"></canvas>
     <button class="big" id="bigPlay" aria-label="재생"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="currentColor"/></svg></button>
     <span class="loading" id="loading">사진 불러오는 중…</span>
   </div>
   <div class="ctl">
     <button id="play">▶ 재생</button>
     <button id="restart">↺ 처음부터</button>
-    <div class="grow" id="seek" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="120" tabindex="0"><i id="bar"></i></div>
-    <span class="tc" id="tc">0:00 / 2:00</span>
+    <div class="grow" id="seek" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="132" tabindex="0"><i id="bar"></i></div>
+    <span class="tc" id="tc">0:00 / 2:12</span>
     <button id="fs">전체화면</button>
   </div>
   <div class="notes">
-    <div><b>Story</b>조율음 A 하나 → 처음 만나는 악기 → 1:1 레슨·파트·합주 → 교내외 무대 → 정기연주회 → 2027 신입생 모집.</div>
+    <div><b>Story</b>조율음 A 하나 → 처음 만나는 악기 → 우리 학교 음악 공간 → 1:1 레슨·파트·합주 → 교내외 무대 → 정기연주회 → 2027 신입생 모집 안내.</div>
     <div><b>BGM</b>120 BPM 오리지널 곡. 피아노·현·피치카토·팀파니까지 샘플 없이 코드로 합성해서 저작권 걱정이 없습니다.</div>
     <div><b>Photos</b>2025–2026 학교 행사 사진. 컷 전환·줌·핑크 프레임이 킥·클랩·피아노 음에 맞춰 움직입니다.</div>
   </div>
@@ -62,11 +62,12 @@ canvas{display:block;width:100%;height:100%;object-fit:contain}
 
 <script>
 /*CONFIG*/
-const EV = /*EVENTS*/null;
+const EV0 = /*EVENTS*/null;
+let EV = EV0;
 const AUDIO_B64 = "/*AUDIO*/";
 const PHOTOS = /*PHOTOS*/{};
 
-const W=1920,H=1080, BPM=120, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=120;
+const W=1920,H=1080, BPM=120, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=132;
 const BK='#050505', WH='#F5F5F0', PK='#FF2E8F', GR='#2E2E2E';
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const FF={BHS:"'Black Han Sans','Noto Sans KR',sans-serif", AN:"'Anton',Impact,sans-serif", MO:"'DM Mono',ui-monospace,monospace", NS:"'Noto Sans KR',sans-serif", NSB:"'Noto Sans KR',sans-serif", NSX:"'Noto Sans KR',sans-serif"};
@@ -87,6 +88,11 @@ function env(arr,t,k){const v=last(arr,t);return v==null?0:Math.exp(-(t-tOf(v))*
 function countIn(arr,t0,t){let n=0;for(const v of arr){const x=tOf(v);if(x>=t0&&x<=t)n++}return n}
 const inBars=(t,a,b)=>t>=tb(a)&&t<tb(b);
 const SEC=EV.SEC;
+// 16~19마디에 '우리 학교 음악 공간'이 들어가면서 그 뒤 장면(성장~엔딩 첫 문장)은 8초씩 뒤로 밀렸습니다.
+// 그 장면들은 원래 마디 번호 그대로 두고, 시간과 비트 이벤트를 8초 당겨서 그립니다.
+const SH=4*BAR;
+const EVS=(()=>{const o={};for(const k in EV0){const v=EV0[k];o[k]=Array.isArray(v)?v.map(x=>typeof x==='number'?x-SH:Array.isArray(x)?[x[0]-SH,...x.slice(1)]:x):v}return o})();
+const late=fn=>t=>{EV=EVS;try{fn(t-SH)}finally{EV=EV0}};
 
 // ---------- 그리기 도구 ----------
 function T(s,x,y,size,o={}){
@@ -268,7 +274,49 @@ function sStart(t){
     const e=prog(t,tb(15,8),BAR/2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*eInExpo(e),H)}
   }
 }
-// 0:32–0:56  성장 3단계
+// 0:32–0:40  우리 학교 음악 공간 (시설 사진)
+const SPACES=[ // [사진, 이름, 영문, 옵션] 2박마다 한 곳
+  ['fac-hall-03','오케스트라 합주실','ORCHESTRA ROOM',{fy:.55}],
+  ['fac-brassroom-01','관악기 개인 연습실','PRACTICE ROOMS',{fy:.5}],
+  ['fac-ensemble-01','앙상블실','ENSEMBLE HALL',{fy:.62}],
+  ['fac-gugak-01','국악실','KOREAN MUSIC ROOM',{fx:.6}],
+  ['fac-music4f-01','음악실','MUSIC ROOM',{}],
+];
+const SPGRID=['fac-hall-01','fac-brasspiano-01','fac-epiano-01','fac-wall-01','fac-stage-02','fac-music2f-01'];
+function sSpace(t){
+  const t0=tb(16),bt=(t-t0)/BEAT;
+  if(bt<4){ // 제목 + 음악중점반 입구
+    const PW=1060;
+    photo(pick('fac-entrance-01','orient-10'),t,t0,BAR,{r:[W-PW,0,PW,H],z0:1.12,z1:1.04,fy:.35});
+    ctx.fillStyle=BK;ctx.fillRect(0,0,W-PW,H);
+    ctx.fillStyle=PK;ctx.fillRect(W-PW-12,0,12,H*eOutExpo(prog(t,t0,.5)));
+    chip('MUSIC ZONE',110,300,30,t,t0,{f:'MO',ls:6});
+    rise('우리 학교',110,440,120,t,t0+BEAT*.5,{});
+    rise('음악 공간',110,590,140,t,t0+BEAT,{c:PK});
+    T('매일 연습하고, 모이고, 무대에 서는 곳',114,720,38,{f:'NSB',a:'left',c:'#cfcfca',al:prog(t,t0+BEAT*1.5,.4)});
+    T('음악중점반 입구',114,960,26,{f:'MO',a:'left',c:'#8a8a86',ls:2,al:prog(t,t0+BEAT*2,.4)});
+    const cover=1-prog(t,t0,.35);if(cover>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*cover,H)}
+    return;
+  }
+  if(bt<14){ // 한 곳씩: 2박마다 전환
+    const i=Math.min(SPACES.length-1,Math.floor((bt-4)/2)),ts=t0+BEAT*(4+i*2);
+    shot(SPACES.map((s,j)=>({k:s[0],...s[3],tr:['wipe','iris','wipeL','split','wipe'][j]})),t,t0+BEAT*4,BEAT*2,{z0:1.03,z1:1.12,td:.3});
+    grad(H*.6,H,0,.8);
+    const [,ko,en]=SPACES[i];
+    chip(ko,90,925,58,t,ts+.06);
+    T(en,94,1010,28,{f:'MO',a:'left',ls:4,al:prog(t,ts+.25,.3),sh:12});
+    T(String(i+1).padStart(2,'0')+' / '+String(SPACES.length).padStart(2,'0'),1860,1010,28,{f:'MO',a:'right',c:PK,ls:4,sh:12});
+    const pn=last(EV.piano,t);frame(pn&&pn[0]>=ts?.6*Math.exp(-(t-pn[0])*8):0,14);
+    return;
+  }
+  // 마지막 2박: 6장 그리드 → 성장 장면으로
+  const gw=W/3,gh=H/2;
+  SPGRID.forEach((k,j)=>{const tj=t0+BEAT*14+j*S16*.8,p=eOutBack(prog(t,tj,.3));if(p<=0)return;const x=(j%3)*gw,y=Math.floor(j/3)*gh;
+    ctx.save();ctx.translate(x+gw/2,y+gh/2);ctx.scale(p,p);ctx.translate(-gw/2,-gh/2);photo(k,t,tj,BEAT*2,{r:[4,4,gw-8,gh-8],z0:1.15,z1:1.05});ctx.restore()});
+  const q=prog(t,t0+BEAT*14.6,.3);if(q>0){shade(.55*q);rise('연습할 곳은 충분해요',960,540,110,t,t0+BEAT*14.6,{a:'center',sh:30})}
+  const e=prog(t,t0+BEAT*15.3,BEAT*.7);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W,H*eInExpo(e))}
+}
+// 0:40–1:04  성장 3단계 (원래 마디 번호 기준, late()로 불림)
 const STEPS=[
   ['01','1:1 전공 레슨','내 악기, 내 속도로',[{k:'camp26-06',fx:.4},{k:'orient-03',fy:.62}]],
   ['02','파트 연습','같은 악기끼리, 한 소리로',[{k:'camp26-03',fx:.55},{k:'camp26-04',fx:.4}]],
@@ -405,41 +453,69 @@ function sClimax(t){
   rise('100여 명의 오케스트라로',960,850,96,t,tb(53),{a:'center',sh:30});
   const e=Math.pow(prog(t,tb(53,12),BEAT),2);ctx.fillStyle=`rgba(255,255,255,${e})`;ctx.fillRect(0,0,W,H);
 }
-// 1:48–2:00  엔딩
-function sOutro(t){
-  if(t<tb(56)){
-    photo('camp26-01',t,tb(54),BAR*2.4,{z0:1.02,z1:1.12,fy:.55});grad(H*.35,H,0,.85);
-    rise('3년, 악기 하나.',120,780,120,t,tb(54),{sh:30});
-    rise('평생 함께할 무대.',120,930,120,t,tb(54,8),{c:PK,sh:30});
-    const e=prog(t,tb(55,8),BEAT*2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(W*(1-eInExpo(e)),0,W,H)}
-    return;
+// 1:56–2:12  엔딩: 한 문장 → 모집 안내 카드 3장 (입학설명회 · 원서 접수 · 문의)
+function sOutro(t){ // 원래 마디 번호(54~55) 기준, late()로 불림
+  photo('camp26-01',t,tb(54),BAR*2.4,{z0:1.02,z1:1.12,fy:.55});grad(H*.35,H,0,.85);
+  rise('3년, 악기 하나.',120,780,120,t,tb(54),{sh:30});
+  rise('평생 함께할 무대.',120,930,120,t,tb(54,8),{c:PK,sh:30});
+  const e=prog(t,tb(55,8),BEAT*2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(W*(1-eInExpo(e)),0,W,H)}
+}
+// 글자가 폭을 넘으면 줄여서 한 줄에
+function fit(s,size,maxW,f='BHS'){const w=measure(s,size,f);return w>maxW?size*maxW/w:size}
+function sInfo(t){
+  const t0=tb(60),ci=Math.min(2,Math.floor((t-t0)/(BAR*2))),ts=t0+ci*BAR*2,fx=1080,LX=110,MW=fx-LX-70;
+  // 오른쪽 사진: 카드마다 바뀜 (신입생 환영 → 1층 음악중점반 복도(접수처) → 캠프 단체사진)
+  shot([{k:'orient-10',fx:.45},{k:pick('fac-entrance-02','orient-10'),tr:'wipeL',fx:.5},{k:'camp26-01',tr:'wipeL',fy:.55}],t,t0,BAR*2,{r:[fx,0,W-fx,H],z0:1.12,z1:1.03,td:.35});
+  ctx.fillStyle=PK;ctx.fillRect(fx-12,0,12,H*eOutExpo(prog(t,t0,.5)));
+  // 위: 고정 제목
+  chip('2027 NEW MEMBERS',LX,120,30,t,t0,{f:'MO',ls:4});
+  const ttl=CONFIG.recruitTitle.split(' '),mid=Math.ceil(ttl.length/2);
+  rise(ttl.slice(0,mid).join(' '),LX,215,70,t,t0+BEAT*.5,{});
+  rise(ttl.slice(mid).join(' '),LX,300,70,t,t0+BEAT,{c:PK});
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=2;line(LX,370,LX+MW*eOutExpo(prog(t,t0+BEAT,.6)),370);
+  // 카드 번호 01 02 03
+  ['입학설명회','원서 접수','문의'].forEach((s,j)=>{const x=LX+j*200,on=j===ci;
+    ctx.fillStyle=on?PK:GR;ctx.fillRect(x,1020,180,6);
+    T(s,x,992,22,{f:'NSB',a:'left',c:on?WH:'#77776f',al:prog(t,t0+BEAT,.4)})});
+  ctx.save();ctx.beginPath();ctx.rect(0,390,fx-12,590);ctx.clip();
+  const k=j=>ts+BEAT*(1+j*.5),row=(lab,val,y,j,o={})=>{if(!val)return;
+    T(lab,LX,y+2,28,{f:'NSB',a:'left',c:PK,al:prog(t,k(j),.4)});
+    T(val,LX+160,y,o.size||36,{f:o.f||'NSB',a:'left',c:o.c||WH,al:prog(t,k(j),.4)})};
+  if(ci===0){
+    T('INFO SESSION',LX,440,26,{f:'MO',a:'left',c:PK,ls:6,al:prog(t,ts,.4)});
+    rise('입학설명회',LX,520,92,t,ts+BEAT*.5,{});
+    const d=CONFIG.briefing;rise(d,LX,660,fit(d,96,MW),t,ts+BEAT,{c:PK});
+    row('대상',CONFIG.target,790,3);
+    row('모집',CONFIG.recruitCount,850,4);
+    T('문의  '+CONFIG.phone,LX,920,30,{f:'NSB',a:'left',c:'#bdbdb8',al:prog(t,k(4),.4)});
+  }else if(ci===1){
+    T('APPLICATION',LX,440,26,{f:'MO',a:'left',c:PK,ls:6,al:prog(t,ts,.4)});
+    rise('원서 접수',LX,520,92,t,ts+BEAT*.5,{});
+    const d=CONFIG.applyPeriod;rise(d,LX,640,fit(d,76,MW),t,ts+BEAT,{c:PK});
+    T(CONFIG.applyHours,LX,720,36,{f:'NSB',a:'left',al:prog(t,k(2),.4)});
+    row('원서 교부',CONFIG.applyForm,800,3,{size:32});
+    row('접수처',CONFIG.applyPlace,860,4,{size:32});
+    T(CONFIG.applyNote,LX,925,26,{f:'NS',a:'left',c:'#a8a8a2',al:prog(t,k(5),.4)});
+  }else{
+    T('CONTACT',LX,440,26,{f:'MO',a:'left',c:PK,ls:6,al:prog(t,ts,.4)});
+    rise('문의',LX,520,92,t,ts+BEAT*.5,{});
+    T(CONFIG.phone,LX-4,660,fit(CONFIG.phone,150,MW,'AN'),{f:'AN',a:'left',c:PK,al:prog(t,ts+BEAT,.4),sc:1+.04*env(EV.piano,t,8)});
+    T('구미 광평중학교 음악중점반',LX,790,40,{f:'NSB',a:'left',al:prog(t,k(3),.4)});
+    T(`(${CONFIG.zip}) ${CONFIG.address}`,LX,850,32,{f:'NS',a:'left',c:'#cfcfca',al:prog(t,k(4),.4)});
   }
-  const ts=tb(56),fx=1080;
-  photo('orient-10',t,ts,BAR*4,{r:[fx,0,W-fx,H],z0:1.15,z1:1.05,fx:.45,filter:'saturate(1.05)'});
-  ctx.fillStyle=PK;ctx.fillRect(fx-12,0,12,H*eOutExpo(prog(t,ts,.5)));
-  let y=190;
-  chip('2027 NEW MEMBERS',110,y,32,t,ts,{f:'MO',ls:4});y+=110;
-  const ttl=CONFIG.recruitTitle.split(' ');const mid=Math.ceil(ttl.length/2);
-  rise(ttl.slice(0,mid).join(' '),110,y,84,t,ts+BEAT,{});y+=100;
-  rise(ttl.slice(mid).join(' '),110,y,84,t,ts+BEAT*1.5,{c:PK});y+=110;
-  const lines=[CONFIG.briefing,CONFIG.recruitCount,CONFIG.target&&('대상  '+CONFIG.target)].filter(Boolean);
-  lines.forEach((s,j)=>{T(s,114,y,38,{f:'NSB',a:'left',al:prog(t,ts+BEAT*(3+j),.4)});y+=62});
-  y+=40;
-  T('문의',114,y,30,{f:'MO',a:'left',c:'#8a8a86',ls:4,al:prog(t,tb(57,4),.4)});
-  T(CONFIG.phone,110,y+78,100,{f:'AN',a:'left',c:PK,al:prog(t,tb(57,4),.4)});
-  T('구미 광평중학교  ·  '+CONFIG.address,114,y+170,30,{f:'NS',a:'left',c:'#cfcfca',al:prog(t,tb(57,8),.4)});
-  // 마지막 A음: 핑크 사인파 한 줄
+  ctx.restore();
+  // 마지막 A음: 핑크 사인파 한 줄 (첫 장면과 수미상관)
   const tn=EV.tune[EV.tune.length-1];
   if(t>tn[0]){const lt=t-tn[0],a=Math.min(1,lt/.3);ctx.save();ctx.strokeStyle=PK;ctx.lineWidth=4;ctx.globalAlpha=a;ctx.beginPath();
-    for(let x=0;x<=fx;x+=6){const yy=1010+Math.sin(x*.012-lt*18)*18*a*Math.sin(Math.PI*x/fx);x?ctx.lineTo(x,yy):ctx.moveTo(x,yy)}ctx.stroke();ctx.restore()}
+    for(let x=0;x<=fx;x+=6){const yy=950+Math.sin(x*.012-lt*18)*18*a*Math.sin(Math.PI*x/fx);x?ctx.lineTo(x,yy):ctx.moveTo(x,yy)}ctx.stroke();ctx.restore()}
   const f=prog(t,DUR-1.4,1.3);if(f>0){ctx.fillStyle=`rgba(5,5,5,${f})`;ctx.fillRect(0,0,W,H)}
 }
 
-const SCENES=[[0,sIntro],[6,sTitle],[8,sStart],[16,sGrow],[28,sStage],[44,sBreak],[46,sClimax],[54,sOutro]];
+const SCENES=[[0,sIntro],[6,sTitle],[8,sStart],[16,sSpace],[20,late(sGrow)],[32,late(sStage)],[48,late(sBreak)],[50,late(sClimax)],[58,late(sOutro)],[60,sInfo]];
 const grain=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),d=g.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}g.putImageData(d,0,0);return c})();
 const isDrop=b=>(b>=SEC.stage[0]&&b<SEC.stage[1])||(b>=SEC.climax[0]&&b<SEC.climax[1]);
 function hud(t){ // 좌상단 워터마크 (사진 구간에서만)
-  if(t<tb(8)||t>=tb(56))return;const a=Math.min(prog(t,tb(8),.6),1-prog(t,tb(55,8),.4));
+  if(t<tb(8)||t>=tb(60))return;const a=Math.min(prog(t,tb(8),.6),1-prog(t,tb(59,8),.4));
   T('GWANGPYEONG MS  ·  MUSIC FOCUS CLASS',60,58,20,{f:'MO',a:'left',ls:4,al:.75*a,sh:10});
   circle(44,58,6,PK);
 }
@@ -449,7 +525,7 @@ function render(t){
   ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';
   ctx.fillStyle=BK;ctx.fillRect(0,0,W,H);
   const crE=cr!=null?Math.exp(-(t-cr)*3):0,fr=Math.floor(t*60);
-  const build=(bar===27?Math.pow(prog(t,tb(27),BAR),2)*6:0)+(bar===45?Math.pow(prog(t,tb(45),BAR),2)*5:0);
+  const build=(bar===31?Math.pow(prog(t,tb(31),BAR),2)*6:0)+(bar===49?Math.pow(prog(t,tb(49),BAR),2)*5:0);
   const sh=crE*14+build;
   ctx.save();ctx.translate((hash(fr)-.5)*2*sh,(hash(fr+99)-.5)*2*sh);
   let sc=SCENES[0];for(const s of SCENES)if(bar>=s[0])sc=s;
@@ -483,7 +559,7 @@ async function play(){
 function pause(){if(!playing)return;offset=now();playing=false;try{src.stop()}catch(e){}ui()}
 function ui(){$('play').textContent=playing?'❚❚ 일시정지':'▶ 재생';$('bigPlay').hidden=playing}
 function seek(s){const was=playing;pause();offset=clamp(s,0,DUR);render(offset);tick();if(was)play()}
-function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 2:00';$('seek').setAttribute('aria-valuenow',Math.round(t))}
+function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 2:12';$('seek').setAttribute('aria-valuenow',Math.round(t))}
 function loop(){if(playing){const t=now();render(t);tick();if(t>=DUR){playing=false;offset=DUR;ui()}}requestAnimationFrame(loop)}
 $('bigPlay').onclick=()=>{offset=offset>=DUR-0.05||offset===POSTER?0:offset;play()};
 $('play').onclick=()=>{if(playing)pause();else{if(offset===POSTER)offset=0;play()}};
