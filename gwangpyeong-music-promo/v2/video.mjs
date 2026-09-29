@@ -1,9 +1,9 @@
 // render.html을 Playwright로 한 프레임씩 그려서 MP4로 만듭니다. (node build.mjs --hi 먼저)
-// node video.mjs            → 전체 2분 12초
+// node video.mjs            → 전체 2분 20초
 // node video.mjs 56 70      → 56초~70초 구간만 미리보기(preview.mp4)
 import { createRequire } from 'module'; const require = createRequire('/opt/node22/lib/node_modules/');
 const { chromium } = require('playwright'); import { spawn } from 'child_process';
-const FPS = 30, DUR = 132;
+const FPS = 30, DUR = 140;
 const [a, b] = process.argv.slice(2).map(Number);
 const PREVIEW = !isNaN(a), T0 = PREVIEW ? a : 0, T1 = PREVIEW ? (b || a + 10) : DUR;
 const OUT = PREVIEW ? 'preview.mp4' : 'gwangpyeong-music-promo-v2.mp4';

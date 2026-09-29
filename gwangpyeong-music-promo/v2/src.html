@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>광평중 음악중점반 2편</title>
-<meta name="description" content="구미 광평중학교 음악중점반 2분 12초 홍보영상 — 처음 악기를 잡은 날부터 정기연주회 무대까지, 학교 음악 공간과 2027 모집 안내 (사진 + 모션그래픽, 120 BPM 비트 싱크)">
+<meta name="description" content="구미 광평중학교 음악중점반 2분 20초 홍보영상 — 처음 악기를 잡은 날부터 정기연주회 무대까지, 학교 음악 공간과 2027 모집 안내 (사진 + 모션그래픽, 120 BPM 비트 싱크)">
 <style>
 /*FONTS*/
 :root{
@@ -39,18 +39,18 @@ canvas{display:block;width:100%;height:100%;object-fit:contain}
 <div class="wrap">
   <header>
     <h1>광평중학교 <b>음악중점반</b> · 2편</h1>
-    <span class="meta">Promo film · 2:12 · 16:9 · ♩=120</span>
+    <span class="meta">Promo film · 2:20 · 16:9 · ♩=120</span>
   </header>
   <div class="stage" id="stage">
-    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 2분 12초 홍보영상"></canvas>
+    <canvas id="cv" width="1920" height="1080" aria-label="광평중학교 음악중점반 2분 20초 홍보영상"></canvas>
     <button class="big" id="bigPlay" aria-label="재생"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="currentColor"/></svg></button>
     <span class="loading" id="loading">사진 불러오는 중…</span>
   </div>
   <div class="ctl">
     <button id="play">▶ 재생</button>
     <button id="restart">↺ 처음부터</button>
-    <div class="grow" id="seek" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="132" tabindex="0"><i id="bar"></i></div>
-    <span class="tc" id="tc">0:00 / 2:12</span>
+    <div class="grow" id="seek" role="slider" aria-label="재생 위치" aria-valuemin="0" aria-valuemax="140" tabindex="0"><i id="bar"></i></div>
+    <span class="tc" id="tc">0:00 / 2:20</span>
     <button id="fs">전체화면</button>
   </div>
   <div class="notes">
@@ -67,7 +67,7 @@ let EV = EV0;
 const AUDIO_B64 = "/*AUDIO*/";
 const PHOTOS = /*PHOTOS*/{};
 
-const W=1920,H=1080, BPM=120, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=132;
+const W=1920,H=1080, BPM=120, BEAT=60/BPM, BAR=BEAT*4, S16=BEAT/4, DUR=140;
 const BK='#050505', WH='#F5F5F0', PK='#FF2E8F', GR='#2E2E2E';
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const FF={BHS:"'Black Han Sans','Noto Sans KR',sans-serif", AN:"'Anton',Impact,sans-serif", MO:"'DM Mono',ui-monospace,monospace", NS:"'Noto Sans KR',sans-serif", NSB:"'Noto Sans KR',sans-serif", NSX:"'Noto Sans KR',sans-serif"};
@@ -88,9 +88,9 @@ function env(arr,t,k){const v=last(arr,t);return v==null?0:Math.exp(-(t-tOf(v))*
 function countIn(arr,t0,t){let n=0;for(const v of arr){const x=tOf(v);if(x>=t0&&x<=t)n++}return n}
 const inBars=(t,a,b)=>t>=tb(a)&&t<tb(b);
 const SEC=EV.SEC;
-// 16~19마디에 '우리 학교 음악 공간'이 들어가면서 그 뒤 장면(성장~엔딩 첫 문장)은 8초씩 뒤로 밀렸습니다.
-// 그 장면들은 원래 마디 번호 그대로 두고, 시간과 비트 이벤트를 8초 당겨서 그립니다.
-const SH=4*BAR;
+// 16~21마디에 '우리 학교 음악 공간'이 들어가면서 그 뒤 장면(성장~엔딩 첫 문장)은 12초씩 뒤로 밀렸습니다.
+// 그 장면들은 원래 마디 번호 그대로 두고, 시간과 비트 이벤트를 12초 당겨서 그립니다.
+const SH=6*BAR;
 const EVS=(()=>{const o={};for(const k in EV0){const v=EV0[k];o[k]=Array.isArray(v)?v.map(x=>typeof x==='number'?x-SH:Array.isArray(x)?[x[0]-SH,...x.slice(1)]:x):v}return o})();
 const late=fn=>t=>{EV=EVS;try{fn(t-SH)}finally{EV=EV0}};
 
@@ -274,7 +274,7 @@ function sStart(t){
     const e=prog(t,tb(15,8),BAR/2);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*eInExpo(e),H)}
   }
 }
-// 0:32–0:40  우리 학교 음악 공간 (시설 사진)
+// 0:32–0:44  우리 학교 음악 공간 (시설 사진): 제목 6박 → 다섯 곳 2박씩 → 그리드 8박
 const SPACES=[ // [사진, 이름, 영문, 옵션] 2박마다 한 곳
   ['fac-hall-03','오케스트라 합주실','ORCHESTRA ROOM',{fy:.55}],
   ['fac-brassroom-01','관악기 개인 연습실','PRACTICE ROOMS',{fy:.5}],
@@ -285,9 +285,9 @@ const SPACES=[ // [사진, 이름, 영문, 옵션] 2박마다 한 곳
 const SPGRID=['fac-hall-01','fac-brasspiano-01','fac-epiano-01','fac-wall-01','fac-stage-02','fac-music2f-01'];
 function sSpace(t){
   const t0=tb(16),bt=(t-t0)/BEAT;
-  if(bt<4){ // 제목 + 음악중점반 입구
+  if(bt<6){ // 제목 + 음악중점반 입구
     const PW=1060;
-    photo(pick('fac-entrance-01','orient-10'),t,t0,BAR,{r:[W-PW,0,PW,H],z0:1.12,z1:1.04,fy:.35});
+    photo(pick('fac-entrance-01','orient-10'),t,t0,BEAT*6,{r:[W-PW,0,PW,H],z0:1.12,z1:1.04,fy:.35});
     ctx.fillStyle=BK;ctx.fillRect(0,0,W-PW,H);
     ctx.fillStyle=PK;ctx.fillRect(W-PW-12,0,12,H*eOutExpo(prog(t,t0,.5)));
     chip('MUSIC ZONE',110,300,30,t,t0,{f:'MO',ls:6});
@@ -298,25 +298,25 @@ function sSpace(t){
     const cover=1-prog(t,t0,.35);if(cover>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W*cover,H)}
     return;
   }
-  if(bt<14){ // 한 곳씩: 2박마다 전환
-    const i=Math.min(SPACES.length-1,Math.floor((bt-4)/2)),ts=t0+BEAT*(4+i*2);
-    shot(SPACES.map((s,j)=>({k:s[0],...s[3],tr:['wipe','iris','wipeL','split','wipe'][j]})),t,t0+BEAT*4,BEAT*2,{z0:1.03,z1:1.12,td:.3});
+  if(bt<16){ // 한 곳씩: 2박마다 전환 (휙 소리 + 종소리)
+    const i=Math.min(SPACES.length-1,Math.floor((bt-6)/2)),ts=t0+BEAT*(6+i*2);
+    shot(SPACES.map((s,j)=>({k:s[0],...s[3],tr:['wipe','iris','wipeL','split','wipe'][j]})),t,t0+BEAT*6,BEAT*2,{z0:1.03,z1:1.12,td:.3});
     grad(H*.6,H,0,.8);
     const [,ko,en]=SPACES[i];
     chip(ko,90,925,58,t,ts+.06);
     T(en,94,1010,28,{f:'MO',a:'left',ls:4,al:prog(t,ts+.25,.3),sh:12});
     T(String(i+1).padStart(2,'0')+' / '+String(SPACES.length).padStart(2,'0'),1860,1010,28,{f:'MO',a:'right',c:PK,ls:4,sh:12});
-    const pn=last(EV.piano,t);frame(pn&&pn[0]>=ts?.6*Math.exp(-(t-pn[0])*8):0,14);
+    const gl=last(EV.glock,t);frame(gl&&gl[0]>=ts?.6*Math.exp(-(t-gl[0])*8):0,14);
     return;
   }
-  // 마지막 2박: 6장 그리드 → 성장 장면으로
+  // 마지막 8박: 6장 그리드(사진마다 종소리) → 문장을 충분히 보여주고 → 성장 장면으로
   const gw=W/3,gh=H/2;
-  SPGRID.forEach((k,j)=>{const tj=t0+BEAT*14+j*S16*.8,p=eOutBack(prog(t,tj,.3));if(p<=0)return;const x=(j%3)*gw,y=Math.floor(j/3)*gh;
-    ctx.save();ctx.translate(x+gw/2,y+gh/2);ctx.scale(p,p);ctx.translate(-gw/2,-gh/2);photo(k,t,tj,BEAT*2,{r:[4,4,gw-8,gh-8],z0:1.15,z1:1.05});ctx.restore()});
-  const q=prog(t,t0+BEAT*14.6,.3);if(q>0){shade(.55*q);rise('연습할 곳은 충분해요',960,540,110,t,t0+BEAT*14.6,{a:'center',sh:30})}
-  const e=prog(t,t0+BEAT*15.3,BEAT*.7);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W,H*eInExpo(e))}
+  SPGRID.forEach((k,j)=>{const tj=t0+BEAT*16+j*S16*.8,p=eOutBack(prog(t,tj,.3));if(p<=0)return;const x=(j%3)*gw,y=Math.floor(j/3)*gh;
+    ctx.save();ctx.translate(x+gw/2,y+gh/2);ctx.scale(p,p);ctx.translate(-gw/2,-gh/2);photo(k,t,tj,BEAT*8,{r:[4,4,gw-8,gh-8],z0:1.15,z1:1.03});ctx.restore()});
+  const q=prog(t,t0+BEAT*16.5,.3);if(q>0){shade(.55*q);rise('연습할 곳은 충분해요',960,540,110,t,t0+BEAT*16.5,{a:'center',sh:30})}
+  const e=prog(t,t0+BEAT*23.3,BEAT*.7);if(e>0){ctx.fillStyle=BK;ctx.fillRect(0,0,W,H*eInExpo(e))}
 }
-// 0:40–1:04  성장 3단계 (원래 마디 번호 기준, late()로 불림)
+// 0:44–1:08  성장 3단계 (원래 마디 번호 기준, late()로 불림)
 const STEPS=[
   ['01','1:1 전공 레슨','내 악기, 내 속도로',[{k:'camp26-06',fx:.4},{k:'orient-03',fy:.62}]],
   ['02','파트 연습','같은 악기끼리, 한 소리로',[{k:'camp26-03',fx:.55},{k:'camp26-04',fx:.4}]],
@@ -453,7 +453,7 @@ function sClimax(t){
   rise('100여 명의 오케스트라로',960,850,96,t,tb(53),{a:'center',sh:30});
   const e=Math.pow(prog(t,tb(53,12),BEAT),2);ctx.fillStyle=`rgba(255,255,255,${e})`;ctx.fillRect(0,0,W,H);
 }
-// 1:56–2:12  엔딩: 한 문장 → 모집 안내 카드 3장 (입학설명회 · 원서 접수 · 문의)
+// 2:00–2:20  엔딩: 한 문장 → 모집 안내 카드 3장 (입학설명회 4초 · 원서 접수 4초 · 문의 8초)
 function sOutro(t){ // 원래 마디 번호(54~55) 기준, late()로 불림
   photo('camp26-01',t,tb(54),BAR*2.4,{z0:1.02,z1:1.12,fy:.55});grad(H*.35,H,0,.85);
   rise('3년, 악기 하나.',120,780,120,t,tb(54),{sh:30});
@@ -463,7 +463,7 @@ function sOutro(t){ // 원래 마디 번호(54~55) 기준, late()로 불림
 // 글자가 폭을 넘으면 줄여서 한 줄에
 function fit(s,size,maxW,f='BHS'){const w=measure(s,size,f);return w>maxW?size*maxW/w:size}
 function sInfo(t){
-  const t0=tb(60),ci=Math.min(2,Math.floor((t-t0)/(BAR*2))),ts=t0+ci*BAR*2,fx=1080,LX=110,MW=fx-LX-70;
+  const t0=tb(62),ci=Math.min(2,Math.floor((t-t0)/(BAR*2))),ts=t0+ci*BAR*2,fx=1080,LX=110,MW=fx-LX-70;
   // 오른쪽 사진: 카드마다 바뀜 (신입생 환영 → 1층 음악중점반 복도(접수처) → 캠프 단체사진)
   shot([{k:'orient-10',fx:.45},{k:pick('fac-entrance-02','orient-10'),tr:'wipeL',fx:.5},{k:'camp26-01',tr:'wipeL',fy:.55}],t,t0,BAR*2,{r:[fx,0,W-fx,H],z0:1.12,z1:1.03,td:.35});
   ctx.fillStyle=PK;ctx.fillRect(fx-12,0,12,H*eOutExpo(prog(t,t0,.5)));
@@ -511,11 +511,11 @@ function sInfo(t){
   const f=prog(t,DUR-1.4,1.3);if(f>0){ctx.fillStyle=`rgba(5,5,5,${f})`;ctx.fillRect(0,0,W,H)}
 }
 
-const SCENES=[[0,sIntro],[6,sTitle],[8,sStart],[16,sSpace],[20,late(sGrow)],[32,late(sStage)],[48,late(sBreak)],[50,late(sClimax)],[58,late(sOutro)],[60,sInfo]];
+const SCENES=[[0,sIntro],[6,sTitle],[8,sStart],[16,sSpace],[22,late(sGrow)],[34,late(sStage)],[50,late(sBreak)],[52,late(sClimax)],[60,late(sOutro)],[62,sInfo]];
 const grain=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),d=g.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}g.putImageData(d,0,0);return c})();
 const isDrop=b=>(b>=SEC.stage[0]&&b<SEC.stage[1])||(b>=SEC.climax[0]&&b<SEC.climax[1]);
 function hud(t){ // 좌상단 워터마크 (사진 구간에서만)
-  if(t<tb(8)||t>=tb(60))return;const a=Math.min(prog(t,tb(8),.6),1-prog(t,tb(59,8),.4));
+  if(t<tb(8)||t>=tb(62))return;const a=Math.min(prog(t,tb(8),.6),1-prog(t,tb(61,8),.4));
   T('GWANGPYEONG MS  ·  MUSIC FOCUS CLASS',60,58,20,{f:'MO',a:'left',ls:4,al:.75*a,sh:10});
   circle(44,58,6,PK);
 }
@@ -525,7 +525,7 @@ function render(t){
   ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';
   ctx.fillStyle=BK;ctx.fillRect(0,0,W,H);
   const crE=cr!=null?Math.exp(-(t-cr)*3):0,fr=Math.floor(t*60);
-  const build=(bar===31?Math.pow(prog(t,tb(31),BAR),2)*6:0)+(bar===49?Math.pow(prog(t,tb(49),BAR),2)*5:0);
+  const build=(bar===33?Math.pow(prog(t,tb(33),BAR),2)*6:0)+(bar===51?Math.pow(prog(t,tb(51),BAR),2)*5:0);
   const sh=crE*14+build;
   ctx.save();ctx.translate((hash(fr)-.5)*2*sh,(hash(fr+99)-.5)*2*sh);
   let sc=SCENES[0];for(const s of SCENES)if(bar>=s[0])sc=s;
@@ -559,7 +559,7 @@ async function play(){
 function pause(){if(!playing)return;offset=now();playing=false;try{src.stop()}catch(e){}ui()}
 function ui(){$('play').textContent=playing?'❚❚ 일시정지':'▶ 재생';$('bigPlay').hidden=playing}
 function seek(s){const was=playing;pause();offset=clamp(s,0,DUR);render(offset);tick();if(was)play()}
-function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 2:12';$('seek').setAttribute('aria-valuenow',Math.round(t))}
+function tick(){const t=now();$('bar').style.width=(t/DUR*100)+'%';$('tc').textContent=fmt(t)+' / 2:20';$('seek').setAttribute('aria-valuenow',Math.round(t))}
 function loop(){if(playing){const t=now();render(t);tick();if(t>=DUR){playing=false;offset=DUR;ui()}}requestAnimationFrame(loop)}
 $('bigPlay').onclick=()=>{offset=offset>=DUR-0.05||offset===POSTER?0:offset;play()};
 $('play').onclick=()=>{if(playing)pause();else{if(offset===POSTER)offset=0;play()}};
