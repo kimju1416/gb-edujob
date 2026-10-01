@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>상모고등학교 홍보 모션그래픽</title>
+<style>
+@font-face{font-family:"PretB";src:url(fonts/Pretendard-Black.woff2) format("woff2");font-weight:900}
+@font-face{font-family:"PretX";src:url(fonts/Pretendard-ExtraBold.woff2) format("woff2");font-weight:800}
+@font-face{font-family:"PretM";src:url(fonts/Pretendard-Medium.woff2) format("woff2");font-weight:500}
+@font-face{font-family:"Anton";src:url(fonts/Anton.woff2) format("woff2")}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{width:min(100vw,177.78vh);height:auto;aspect-ratio:16/9;background:#0b0b0d}
+#play{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);color:#fff;font:800 28px PretX,sans-serif;cursor:pointer;z-index:5}
+#play b{background:#ff2e9a;color:#0b0b0d;padding:20px 40px;border-radius:999px}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="play"><b>▶ 재생 (소리 켜기)</b></div>
+<audio id="au" src="music.mp3" preload="auto"></audio>
+<script>
+const W=1920,H=1080,BPM=120,BT=60/BPM,DUR=30;
+const PINK='#ff2e9a',BLK='#0b0b0d',WHT='#f7f7f5';
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const eox=x=>x>=1?1:1-Math.pow(2,-10*x);
+const eo4=x=>1-Math.pow(1-clamp(x),4);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const back=x=>{x=clamp(x);const c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const hash=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const kick=b=>Math.exp(-((b%1+1)%1)*6);
+const prog=(b,s,d)=>clamp((b-s)/d);
+
+/* ---------- 사진 (photos/p1~p6.jpg 가 있으면 실제 사진, 없으면 임시 일러스트) ---------- */
+const PH=[];
+function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+async function loadPhotos(){
+  for(let i=1;i<=6;i++){
+    let im=null;
+    for(const ext of ['jpg','jpeg','png','webp']){im=await loadImg(`photos/p${i}.${ext}`);if(im)break}
+    PH.push(im||placeholder(i-1));
+    PH[i-1]._real=!!im;
+  }
+}
+function placeholder(k){
+  const c=document.createElement('canvas');c.width=1600;c.height=1000;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,1000);gr.addColorStop(0,'#5b5b60');gr.addColorStop(1,'#1d1d20');g.fillStyle=gr;g.fillRect(0,0,1600,1000);
+  g.fillStyle='rgba(255,255,255,.07)';
+  for(let y=0;y<1000;y+=22)for(let x=(y/22%2)*11;x<1600;x+=22){g.beginPath();g.arc(x,y,3.2,0,7);g.fill()}
+  g.fillStyle='#d9d9dc';g.strokeStyle='#d9d9dc';
+  if(k===0){ // 학교 건물
+    g.fillStyle='#2a2a2e';g.fillRect(0,760,1600,240);
+    g.fillStyle='#e6e6e8';g.fillRect(250,330,1100,430);g.fillRect(650,230,300,100);
+    g.fillStyle='#3a3a3f';for(let r=0;r<3;r++)for(let q=0;q<12;q++)g.fillRect(290+q*90,370+r*120,60,80);
+    g.fillRect(740,640,120,120);g.fillStyle='#e6e6e8';g.fillRect(1450,300,10,460);g.fillRect(1460,310,80,50);
+  }else if(k===1){ // 운동장
+    g.fillStyle='#2a2a2e';g.fillRect(0,0,1600,1000);g.lineWidth=14;g.strokeStyle='#e6e6e8';
+    for(let i=0;i<5;i++){g.beginPath();g.ellipse(800,540,300+i*105,150+i*70,0,0,7);g.stroke()}
+    g.fillStyle='#e6e6e8';g.beginPath();g.arc(800,540,70,0,7);g.fill();
+  }else if(k===2){ // 교실
+    g.fillStyle='#e6e6e8';g.fillRect(300,100,1000,330);g.fillStyle='#2a2a2e';g.fillRect(330,130,940,270);
+    g.fillStyle='#e6e6e8';for(let r=0;r<3;r++)for(let q=0;q<5;q++){g.fillRect(180+q*270,560+r*130,200,26);g.fillRect(215+q*270,586+r*130,20,60);g.fillRect(345+q*270,586+r*130,20,60)}
+  }else if(k===3){ // 실험실
+    g.fillStyle='#e6e6e8';
+    g.beginPath();g.moveTo(420,300);g.lineTo(520,300);g.lineTo(520,520);g.lineTo(640,820);g.lineTo(300,820);g.lineTo(420,520);g.closePath();g.fill();
+    g.beginPath();g.arc(900,600,200,0,7);g.fill();g.fillRect(870,270,60,140);
+    g.fillRect(1100,360,70,460);g.beginPath();g.arc(1135,360,50,0,7);g.fill();
+    g.fillStyle='#2a2a2e';g.fillRect(0,820,1600,180);
+  }else if(k===4){ // 학생들
+    g.fillStyle='#2a2a2e';g.fillRect(0,780,1600,220);g.fillStyle='#e6e6e8';
+    for(let i=0;i<9;i++){const x=150+i*170,h=380+hash(i)*90;g.beginPath();g.arc(x,780-h-40,48,0,7);g.fill();
+      g.beginPath();g.moveTo(x-65,780);g.quadraticCurveTo(x-70,780-h,x,780-h+20);g.quadraticCurveTo(x+70,780-h,x+65,780);g.closePath();g.fill()}
+  }else{ // 느티나무
+    g.fillStyle='#2a2a2e';g.fillRect(0,820,1600,180);g.fillStyle='#e6e6e8';
+    g.beginPath();g.moveTo(720,820);g.quadraticCurveTo(780,560,760,420);g.lineTo(840,420);g.quadraticCurveTo(820,560,880,820);g.closePath();g.fill();
+    for(const [x,y,r] of [[800,330,230],[600,420,170],[1000,420,180],[700,230,150],[920,250,160],[800,150,130]]){g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+  }
+  const img=g.getImageData(0,0,1,1);void img;return c;
+}
+
+/* ---------- 그리기 도구 ---------- */
+function pathPara(x,y,w,h,sk){ctx.beginPath();ctx.moveTo(x+sk,y);ctx.lineTo(x+w+sk,y);ctx.lineTo(x+w-sk,y+h);ctx.lineTo(x-sk,y+h);ctx.closePath()}
+function pathCircle(x,y,r){ctx.beginPath();ctx.arc(x,y,Math.max(0.01,r),0,Math.PI*2)}
+function coverDraw(img,x,y,w,h,zoom=1,px=0,py=0){
+  const iw=img.width,ih=img.height,s=Math.max(w/iw,h/ih)*zoom;
+  ctx.drawImage(img,x+(w-iw*s)/2+px,y+(h-ih*s)/2+py,iw*s,ih*s);
+}
+// 흑백 + 핑크 듀오톤 사진 (현재 path 로 clip)
+function photoIn(i,x,y,w,h,{zoom=1,px=0,py=0,tint=.55,alpha=1}={}){
+  ctx.save();ctx.clip();ctx.globalAlpha=alpha;
+  ctx.filter='grayscale(1) contrast(1.35) brightness(.95)';
+  coverDraw(PH[i],x,y,w,h,zoom,px,py);ctx.filter='none';
+  if(tint>0){ctx.globalCompositeOperation='multiply';ctx.globalAlpha=tint*alpha;ctx.fillStyle=PINK;ctx.fillRect(x-4,y-4,w+8,h+8);ctx.globalCompositeOperation='source-over'}
+  ctx.restore();
+}
+function T(s,x,y,size,fam,col,{align='left',stroke=null,lw=0,alpha=1,sp=0}={}){
+  ctx.save();ctx.font=`${fam==='Anton'?'400':'900'} ${size}px ${fam},sans-serif`;
+  ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.globalAlpha=alpha;
+  if('letterSpacing' in ctx)ctx.letterSpacing=sp+'px';
+  if(stroke){ctx.lineWidth=lw;ctx.strokeStyle=stroke;ctx.lineJoin='round';ctx.strokeText(s,x,y)}
+  if(col){ctx.fillStyle=col;ctx.fillText(s,x,y)}
+  ctx.restore();
+}
+function tw(s,size,fam,sp=0){ctx.save();ctx.font=`${fam==='Anton'?'400':'900'} ${size}px ${fam},sans-serif`;if('letterSpacing' in ctx)ctx.letterSpacing=sp+'px';const w=ctx.measureText(s).width;ctx.restore();return w}
+// 글자 단위 마스크 리빌 (아래에서 솟아오름)
+function reveal(s,x,base,size,fam,col,b,start,stag=.12,{align='left',sp=0,outline=null,lw=0}={}){
+  const total=tw(s,size,fam,sp);let cx=align==='center'?x-total/2:align==='right'?x-total:x;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i],w=tw(ch,size,fam,sp)+sp;const p=eox(prog(b,start+i*stag,.4));
+    if(p>0&&ch!==' '){ctx.save();ctx.beginPath();ctx.rect(cx-6,base-size*1.02,w+12,size*1.3);ctx.clip();
+      T(ch,cx,base+(1-p)*size*1.15,size,fam,col,{stroke:outline,lw});ctx.restore()}
+    cx+=w;
+  }
+}
+// 슬램 (크게 → 제자리, 킥에 반응)
+function slam(s,cx,cy,size,fam,col,b,start,{echo=null,stroke=null,lw=0,rot=0,sp=0,shadow=null}={}){
+  const p=prog(b,start,.35);if(b<start)return;const e=eox(p);
+  const sc=1+(1-e)*1.1,k=kick(b-start)*.035*(b-start<2?1:0);
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(rot*(1-e));ctx.scale(sc+k,sc+k);ctx.globalAlpha=clamp(p*4);
+  if(echo)for(let i=3;i>=1;i--)T(s,0,0,size,fam,null,{align:'center',stroke:echo,lw:3,alpha:.7/i*(e>.5?1:0)+0,sp}),ctx.translate(0,0);
+  if(shadow)T(s,14,14,size,fam,shadow,{align:'center',sp});
+  T(s,0,0,size,fam,col,{align:'center',stroke,lw,sp});
+  ctx.restore();
+}
+// 텍스트 안에 사진 채우기
+const off=document.createElement('canvas');off.width=W;off.height=H;const og=off.getContext('2d');
+function photoText(s,cx,cy,size,img,b,{tint=.5,zoom=1.2,sc=1,rot=0,dx=0,base='#222'}={}){
+  og.clearRect(0,0,W,H);og.save();og.globalCompositeOperation='source-over';og.fillStyle='#fff';
+  og.font=`900 ${size}px PretB,sans-serif`;og.textAlign='center';og.textBaseline='alphabetic';og.fillText(s,W/2,H/2+size*.36);
+  og.globalCompositeOperation='source-in';og.fillStyle=base;og.fillRect(0,0,W,H);og.globalAlpha=.62;og.filter='grayscale(1) contrast(1.4) brightness(1.15)';
+  const iw=img.width,ih=img.height,k=Math.max(W/iw,H/ih)*zoom;og.drawImage(img,(W-iw*k)/2+Math.sin(b*.5)*60,(H-ih*k)/2,iw*k,ih*k);og.filter='none';og.globalAlpha=1;
+  if(tint>0){og.globalCompositeOperation='source-atop';og.globalAlpha=tint*.7;og.fillStyle=PINK;og.fillRect(0,0,W,H)}
+  og.restore();
+  ctx.save();ctx.translate(cx+dx,cy);ctx.rotate(rot);ctx.scale(sc,sc);ctx.drawImage(off,-W/2,-H/2);ctx.restore();
+}
+function ring(x,y,r,col,lw,a=1){ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=col;ctx.lineWidth=lw;pathCircle(x,y,r);ctx.stroke();ctx.restore()}
+function cross(x,y,s,col,lw,rot){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(-s,0);ctx.lineTo(s,0);ctx.moveTo(0,-s);ctx.lineTo(0,s);ctx.stroke();ctx.restore()}
+function dotGrid(col,a,step=60,ox=0){ctx.save();ctx.fillStyle=col;ctx.globalAlpha=a;for(let y=step/2;y<H;y+=step)for(let x=step/2+ox%step;x<W;x+=step){ctx.fillRect(x-2,y-2,4,4)}ctx.restore()}
+
+/* ---------- 장면 ---------- */
+let hud=WHT;
+const SUBJ=['국어','수학','영어','과학','사회','체육','음악','미술','정보','진로','철학','경제','화학','물리','생명','독서','토론','논술','한국사','심리','체육','코딩','연극','통계','지구','보건','일본어','중국어','디자인','창체'];
+
+function S1(b){ // 0~8
+  hud=WHT;ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);dotGrid('#fff',.06,60);
+  if(b<4){
+    const r=lerp(1500,300,eox(prog(b,0,.9)));const a=b<.02?1:1;
+    ctx.fillStyle=PINK;pathCircle(W/2,H/2,r+kick(b)*30*(b>1?1:0));ctx.fill();
+    const L='SANGMO';const size=420;let tot=0;const ws=[...L].map(c=>tw(c,size,'Anton',8));ws.forEach(w=>tot+=w);
+    let x=W/2-tot/2;
+    for(let i=0;i<6;i++){const st=i*.5,p=prog(b,st,.3);if(p>0){const e=eox(p);ctx.save();ctx.globalAlpha=clamp(p*5);
+        ctx.translate(x+ws[i]/2,H/2+170);const s=1+(1-e)*.9;ctx.scale(s,s);
+        T(L[i],0,0,size,'Anton',WHT,{align:'center',sp:8});ctx.restore()}
+      x+=ws[i]}
+    // 외곽 링 / 십자
+    ring(W/2,H/2,420+kick(b)*40,WHT,3,.5);cross(220,200,60,WHT,5,b*.5);cross(1700,880,60,PINK,5,-b*.5);
+    ctx.fillStyle=WHT;ctx.fillRect(0,H-120,W*eox(prog(b,0,2)),8);
+  }else{
+    const lb=b-4;
+    // 상단으로 올라간 SANGMO
+    const mv=eio(prog(b,4,.6));T('SANGMO  HIGH  SCHOOL',W/2,lerp(H/2,170,mv),lerp(160,90,mv),'Anton',null,{align:'center',stroke:WHT,lw:2.5,sp:14});
+    ring(W/2,H/2+40,560+kick(b)*30,PINK,4,.35);ring(W/2,H/2+40,760+kick(b)*40,WHT,2,.2);
+    slam('상모고등학교',W/2,H/2+120,270,'PretB',PINK,b,4,{stroke:null,shadow:'#fff'});
+    // 핑크 바
+    ctx.fillStyle=PINK;ctx.fillRect(W/2-760,H/2+250,1520*eox(prog(b,5,.7)),14);
+    reveal('GUMI · GYEONGBUK · KOREA',W/2,H/2+360,56,'Anton',WHT,b,6,.06,{align:'center',sp:12});
+    for(let i=0;i<3;i++){const p=eox(prog(b,4+i*.25,.8));cross(200+i*760,880-i*40,40*p,i%2?PINK:WHT,5,b)}
+    ctx.fillStyle=PINK;ctx.fillRect(0,0,W*(1-eox(prog(b,4,.5))),14);
+  }
+}
+
+function S2(b){ // 8~16
+  const lb=b-8;hud=WHT;ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);dotGrid('#fff',.07,60,lb*8);
+  const k=kick(b);
+  if(lb<4){
+    const ex=lb>3.6?eio(prog(lb,3.6,.4)):0;ctx.save();ctx.translate(-ex*1100,0);
+    reveal('SINCE',120,300,150,'Anton',PINK,lb,0,.1,{sp:10});
+    const n=Math.round(2004*eox(prog(lb,.25,2.6)));
+    T(String(n).padStart(4,'0'),104,720,470,'Anton',WHT,{sp:4});
+    reveal('2004. 3. 1  개교',124,840,92,'PretB',WHT,lb,2.8,.08);
+    ctx.fillStyle=PINK;ctx.fillRect(124,880,520*eox(prog(lb,3,.6)),12);ctx.restore();
+    // 사진: 평행사변형
+    const sl=1-eox(prog(lb,0,.8)),x=1010+sl*900;
+    ctx.save();ctx.fillStyle=PINK;pathPara(x+34,150+34,760,780,60);ctx.fill();ctx.restore();
+    pathPara(x,150,760,780,60);photoIn(0,x-60,150,880,780,{zoom:1.15+lb*.02,px:-lb*10,tint:.4});
+    ring(1700,260,90+k*14,WHT,4,.8);
+  }else{
+    const l2=lb-4;
+    // 원형 사진 확장
+    const rr=eox(prog(l2,0,.9))*500+k*10;
+    ctx.fillStyle=PINK;pathCircle(1380,540,rr+26);ctx.fill();
+    pathCircle(1380,540,rr);photoIn(1,880,40,1000,1000,{zoom:1.2+l2*.02,tint:.35});
+    reveal('경북 구미시',110,330,120,'PretB',PINK,l2,.3,.1);
+    reveal('상모동에서',110,500,160,'PretB',WHT,l2,.8,.1);
+    reveal('시작된 이야기',110,690,160,'PretB',WHT,l2,1.3,.08);
+    ctx.fillStyle=PINK;ctx.fillRect(114,740,640*eox(prog(l2,2,.7)),12);
+    reveal('SANGMO  STORY',114,860,70,'Anton',WHT,l2,2.4,.05,{sp:10});
+    for(let i=0;i<4;i++)cross(130+i*120,980,18,i%2?PINK:WHT,4,b*(i%2?1:-1));
+  }
+}
+
+const WORDS=[
+  {k:'자율',en:'AUTONOMY',bg:BLK,fg:WHT,ac:PINK,im:2},
+  {k:'창의',en:'CREATIVITY',bg:PINK,fg:BLK,ac:WHT,im:3},
+  {k:'봉사',en:'SERVICE',bg:WHT,fg:BLK,ac:PINK,im:4}
+];
+function S3(b){ // 16~28
+  const idx=Math.min(2,Math.floor((b-16)/4));const w=WORDS[idx];const lb=b-16-idx*4;const k=kick(b);
+  ctx.fillStyle=w.bg;ctx.fillRect(0,0,W,H);hud=w.fg;
+  dotGrid(w.fg,.07,60);
+  // 모티프
+  ctx.save();
+  if(idx===0){ring(1500,300,200+k*20,w.ac,6,.9);const a=b*Math.PI*.5;ctx.fillStyle=w.ac;pathCircle(1500+Math.cos(a)*200,300+Math.sin(a)*200,22);ctx.fill();ring(1500,300,330,w.fg,2,.3)}
+  if(idx===1){ctx.strokeStyle=w.ac;ctx.lineWidth=6;for(let i=0;i<18;i++){const a=i/18*6.283+b*.4,r0=180+k*40,r1=320+(i%2)*120;ctx.beginPath();ctx.moveTo(1500+Math.cos(a)*r0,300+Math.sin(a)*r0);ctx.lineTo(1500+Math.cos(a)*r1,300+Math.sin(a)*r1);ctx.stroke()}}
+  if(idx===2){for(let i=0;i<5;i++){const r=((lb*.5+i*.2)%1)*480;ring(1500,300,r,w.ac,6,1-r/480)}pathCircle(1500,300,40);ctx.fillStyle=w.ac;ctx.fill()}
+  ctx.restore();
+  // 거대 단어 (사진 채움)
+  const p=prog(lb,0,.4),e=eox(p);
+  const sc=1+(1-e)*.9+k*.025,rot=(1-e)*-.06;
+  if(p>0){
+    ctx.save();ctx.globalAlpha=clamp(p*5);
+    // 그림자 블록
+    ctx.save();ctx.translate(W/2+22,H/2+22);ctx.rotate(rot);ctx.scale(sc,sc);ctx.translate(-W/2,-H/2);
+    T(w.k,W/2,H/2+30+820*.36,820,'PretB',w.ac,{align:'center'});ctx.restore();
+    photoText(w.k,W/2,H/2+30,820,PH[w.im],b,{tint:idx===1?.1:.55,sc,rot,zoom:1.25,base:idx===0?'#2a2a2e':BLK});
+    ctx.restore();
+  }
+  // 영문 라벨 + 번호
+  reveal(w.en,110,985,78,'Anton',w.fg,lb,.5,.05,{sp:10});
+  T('0'+(idx+1)+' / 03',W-110,150,64,'Anton',w.fg,{align:'right',sp:6});
+  reveal('상모의 교훈',110,170,60,'PretB',w.fg,lb,.2,.08);
+  ctx.fillStyle=w.ac;ctx.fillRect(110,200,280*eox(prog(lb,.4,.5)),10);
+  // 비트 슬라이스 글리치
+  if(lb%1<.15&&lb>.1){const o=(hash(Math.floor(b*2))-.5)*60;ctx.save();ctx.fillStyle=w.ac;ctx.globalAlpha=.9;ctx.fillRect(0,300+hash(b)*400,W,18);ctx.restore()}
+}
+
+function S4(b){ // 28~36
+  const lb=b-28;hud=WHT;ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);
+  ctx.save();pathPara(0,0,W,H,0);ctx.beginPath();ctx.rect(0,0,W,H);photoIn(3,0,0,W,H,{zoom:1.15+lb*.015,tint:.8,alpha:.28});ctx.restore();
+  dotGrid('#fff',.06,60);const k=kick(b);
+  // 사인파
+  ctx.save();ctx.strokeStyle=PINK;ctx.lineWidth=8;ctx.beginPath();const pw=eox(prog(lb,0,3))*W;
+  for(let x=0;x<=pw;x+=8){const y=190+Math.sin(x*.012-lb*3)*70*(1+k*.3);x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ctx.restore();
+  // 날아다니는 기호
+  const G=['π','∑','√','E=mc²','∫','Δ','H₂O','θ','∞','F=ma'];
+  for(let i=0;i<10;i++){const st=i*.5;const p=prog(lb,st,.4);if(p>0){const x=140+hash(i+3)*1640,y=300+hash(i+9)*60+ (i%2)*30;
+      T(G[i],x,y+(1-eox(p))*60,70+hash(i)*40,'Anton',i%3===0?PINK:WHT,{align:'center',alpha:.85*eox(p)})}}
+  // 수학 × 과학
+  slam('수학',520,700,310,'PretB',WHT,b,28.2);
+  if(b>=29.5){const p=eox(prog(b,29.5,.4));ctx.save();ctx.translate(960,640);ctx.rotate((1-p)*3.14);ctx.scale(p+k*.1,p+k*.1);T('×',0,0,300,'PretB',PINK,{align:'center'});ctx.restore()}
+  slam('과학',1400,700,310,'PretB',PINK,b,29.5);
+  reveal('MATH  ×  SCIENCE',W/2,860,92,'Anton',WHT,b,31,.04,{align:'center',sp:16});
+  if(b>=32.5){const p=eox(prog(b,32.5,.5));ctx.save();ctx.translate(W/2,960);ctx.scale(p,1);ctx.fillStyle=PINK;pathPara(-470,-52,940,92,26);ctx.fill();
+    T('교과교실제 · 수학·과학 중점 운영',0,8,52,'PretB',BLK,{align:'center'});ctx.restore()}
+  // 원자 궤도
+  ctx.save();ctx.translate(1700,880);for(let i=0;i<3;i++){ctx.save();ctx.rotate(i*Math.PI/3+b*.3);ctx.strokeStyle=WHT;ctx.globalAlpha=.7;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,110,40,0,0,7);ctx.stroke();
+    ctx.fillStyle=PINK;ctx.beginPath();ctx.arc(Math.cos(b*3+i)*110,Math.sin(b*3+i)*40,10,0,7);ctx.fill();ctx.restore()}
+  ctx.fillStyle=PINK;pathCircle(0,0,16+k*8);ctx.fill();ctx.restore();
+}
+
+function S5(b){ // 36~44
+  const lb=b-36;hud=WHT;ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);dotGrid('#fff',.06,60);const k=kick(b);
+  // 시간표 그리드
+  const cols=5,rows=6,tx=980,ty=120,tw_=165,th_=135,gap=12;
+  const pick=[7,13,16,22,28];
+  for(let i=0;i<cols*rows;i++){
+    const r=Math.floor(i/cols),c=i%cols;const st=i*.09;const p=prog(lb,st,.3);if(p<=0)continue;const e=back(p);
+    const x=tx+c*(tw_+gap),y=ty+r*(th_+gap);
+    const pi=pick.findIndex(q=>q===i);const on=pi>=0&&lb>=4+pi*.5;
+    const flash=on?Math.max(0,1-(lb-(4+pi*.5))*2):0;
+    ctx.save();ctx.translate(x+tw_/2,y+th_/2);ctx.scale(e,e);
+    ctx.fillStyle=on?PINK:'rgba(255,255,255,.06)';ctx.fillRect(-tw_/2,-th_/2,tw_,th_);
+    ctx.strokeStyle=on?PINK:WHT;ctx.lineWidth=on?0:3;ctx.globalAlpha=on?1:.6;if(!on)ctx.strokeRect(-tw_/2,-th_/2,tw_,th_);ctx.globalAlpha=1;
+    T(SUBJ[i],0,18,46,'PretB',on?BLK:WHT,{align:'center'});
+    if(flash>0){ctx.fillStyle=WHT;ctx.globalAlpha=flash;ctx.fillRect(-tw_/2,-th_/2,tw_,th_)}
+    ctx.restore();
+  }
+  slam('고교학점제',110+415,300,165,'PretB',WHT,b,36,{rot:-.05});
+  slam('연구학교',110+290,480,165,'PretB',PINK,b,37);
+  reveal('MY CHOICE.',110,730,170,'Anton',WHT,lb,3,.05,{sp:6});
+  reveal('MY CREDIT.',110,880,170,'Anton',PINK,lb,3.6,.05,{sp:6});
+  if(lb>=5){const p=eox(prog(lb,5,.5));ctx.save();ctx.globalAlpha=p;T('내가 고르는 나의 시간표',112,980,54,'PretM',WHT,{sp:2});ctx.restore()}
+  ring(900,120,50+k*10,PINK,5,.9);cross(900,120,26,WHT,5,b);
+}
+
+function S6(b){ // 44~52
+  const lb=b-44;hud=WHT;const k=kick(b);
+  if(lb<4){
+    ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);dotGrid('#fff',.06,60);
+    const n=Math.round(700*eox(prog(lb,0,2.3)));
+    T('약',110,330,110,'PretB',PINK);
+    T(String(n),90,820,640,'Anton',WHT,{sp:6});
+    reveal('명의 꿈이 자라는 곳',130,950,100,'PretB',WHT,lb,2.4,.07);
+    T('※ 2023. 5. 1 기준',130,1030,34,'PretM',WHT,{alpha:.55});
+    // 사진 3장 세로 스트립
+    const xs=[1140,1420,1700],imgs=[4,0,1];
+    for(let i=0;i<3;i++){const p=eox(prog(lb,i*.35,.6));const y=140+(1-p)*900*(i%2?-1:1);
+      ctx.fillStyle=PINK;pathPara(xs[i]+14,y+14,230,780,40);ctx.fill();
+      pathPara(xs[i],y,230,780,40);photoIn(imgs[i],xs[i]-60,y,350,780,{zoom:1.2+lb*.03,tint:.35+i*.1})}
+  }else{
+    const l2=lb-4;ctx.fillStyle=PINK;ctx.fillRect(0,0,W,H);hud=BLK;dotGrid('#000',.1,60);
+    // 아치형 사진
+    const p=eox(prog(l2,0,.8));const ay=lerp(1100,120,p),aw=480,ah=840,ax=860;
+    ctx.fillStyle=BLK;ctx.beginPath();ctx.moveTo(ax-aw/2-24,ay+ah+24);ctx.lineTo(ax-aw/2-24,ay+aw/2);ctx.arc(ax,ay+aw/2,aw/2+24,Math.PI,0);ctx.lineTo(ax+aw/2+24,ay+ah+24);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(ax-aw/2,ay+ah);ctx.lineTo(ax-aw/2,ay+aw/2);ctx.arc(ax,ay+aw/2,aw/2,Math.PI,0);ctx.lineTo(ax+aw/2,ay+ah);ctx.closePath();
+    photoIn(5,ax-aw/2,ay,aw,ah,{zoom:1.15+l2*.02,tint:.25});
+    slam('느티나무',1500,330,170,'PretB',BLK,b,48.0);
+    slam('목백일홍',1500,560,170,'PretB',WHT,b,49);
+    reveal('교목',0,0,1,'PretB',BLK,b,99);
+    if(l2>=1.5){const q=eox(prog(l2,1.5,.5));ctx.save();ctx.globalAlpha=q;T('교목  ·  교화',1500,720,60,'PretB',BLK,{align:'center'});ctx.restore()}
+    // 좌측 문구
+    reveal('TREE &',110,420,110,'Anton',BLK,l2,.3,.05,{sp:6});
+    reveal('FLOWER',110,540,110,'Anton',WHT,l2,.7,.05,{sp:6});
+    ctx.fillStyle=BLK;ctx.fillRect(114,580,400*eox(prog(l2,1.6,.6)),12);
+    for(let i=0;i<4;i++){ring(220+i*70,900,14+(i===Math.floor(l2*2)%4?k*10:0),BLK,5,1)}
+  }
+}
+
+function S7(b){ // 52~60
+  const lb=b-52;const k=kick(b);
+  if(lb<4){
+    hud=WHT;ctx.fillStyle=BLK;ctx.fillRect(0,0,W,H);dotGrid('#fff',.06,60);
+    ctx.save();ctx.fillStyle=PINK;pathPara(-200,760,W+400,120,0);ctx.restore();
+    reveal('미래를 이끌어 갈',W/2,420,170,'PretB',WHT,lb,0,.07,{align:'center'});
+    slam('창의적인 인재',W/2,720,250,'PretB',PINK,b,53);
+    ctx.fillStyle=WHT;ctx.fillRect(W/2-780,780,1560*eox(prog(lb,1.5,.8)),10);
+    ring(W/2,540,640+k*30,WHT,2,.18);
+    if(lb>3.4){ctx.fillStyle=WHT;ctx.globalAlpha=eox(prog(lb,3.4,.6));ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}
+  }else{
+    const l2=lb-4;hud=BLK;ctx.fillStyle=PINK;ctx.fillRect(0,0,W,H);dotGrid('#000',.1,60);
+    ring(W/2,H/2,300+l2*180+k*30,BLK,5,.4);ring(W/2,H/2,160+l2*120,WHT,3,.5);
+    slam('상모고등학교',W/2,H/2+60,290,'PretB',BLK,b,56,{shadow:WHT});
+    reveal('SANGMO  HIGH  SCHOOL',W/2,H/2+240,84,'Anton',BLK,l2,.5,.04,{align:'center',sp:10});
+    if(l2>=1.2){const q=eox(prog(l2,1.2,.5));ctx.save();ctx.globalAlpha=q;T('당신의 3년, 상모에서',W/2,H/2-210,76,'PretX',BLK,{align:'center',sp:4});ctx.restore()}
+    if(l2>=2.2){const q=eox(prog(l2,2.2,.5));ctx.save();ctx.globalAlpha=q;T('경북 구미시 박정희로 60-22',W/2,H/2+340,46,'PretM',BLK,{align:'center',sp:3});ctx.restore()}
+    cross(260,200,44,BLK,6,b);cross(1660,880,44,WHT,6,-b);
+  }
+}
+
+/* ---------- 전환 · HUD · 합성 ---------- */
+const CUTS=[8,16,20,24,28,36,44,52];
+function wipe(t){
+  for(const cb of CUTS){const T0=cb*BT,a=T0-.1,c=T0+.2;if(t>=a&&t<=c){
+    const x=t<T0?lerp(-W*1.2,0,eio((t-a)/(T0-a))):lerp(0,W*1.2,eio((t-T0)/(c-T0)));
+    ctx.save();ctx.fillStyle=PINK;pathPara(x-W/2,-40,W*1.1,H+80,160);ctx.fill();
+    ctx.fillStyle=WHT;pathPara(x-W/2-70,-40,50,H+80,160);ctx.fill();ctx.restore();}}
+}
+function drawHUD(t,b){
+  ctx.save();const c=hud;
+  T('SANGMO HS',60,84,40,'Anton',c,{sp:6,alpha:.9});
+  ctx.fillStyle=PINK;pathCircle(34,70,9+kick(b)*7);ctx.fill();
+  const s=Math.min(30,Math.floor(t));T('00:'+String(s).padStart(2,'0'),W-60,84,40,'Anton',c,{align:'right',sp:6,alpha:.9});
+  // 비트 눈금
+  const bx=60,bw=W-120,by=H-46;ctx.globalAlpha=.85;
+  for(let i=0;i<60;i++){const on=i<=b;ctx.fillStyle=on?(c===BLK?BLK:PINK):c;ctx.globalAlpha=on?1:.22;const h=(i%4===0)?20:12;ctx.fillRect(bx+i*(bw/60),by+20-h,bw/60-4,h)}
+  ctx.restore();
+}
+function render(t){
+  t=clamp(t,0,DUR-1e-4);const b=t/BT;
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';
+  // 킥 펄스 줌
+  const z=1+kick(b)*.012;ctx.save();ctx.translate(W/2,H/2);ctx.scale(z,z);ctx.translate(-W/2,-H/2);
+  if(b<8)S1(b);else if(b<16)S2(b);else if(b<28)S3(b);else if(b<36)S4(b);else if(b<44)S5(b);else if(b<52)S6(b);else S7(b);
+  ctx.restore();
+  drawHUD(t,b);wipe(t);
+  // 필름 그레인
+  ctx.save();const f=Math.floor(t*30);ctx.globalAlpha=.07;for(let i=0;i<260;i++){ctx.fillStyle=hash(f*7+i)>.5?'#fff':'#000';ctx.fillRect(hash(f+i*3)*W,hash(f*2+i*5)*H,2,2)}ctx.restore();
+  // 엔딩 페이드아웃
+  if(t>DUR-.4){ctx.fillStyle=BLK;ctx.globalAlpha=(t-(DUR-.4))/.4;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}
+}
+
+/* ---------- 부팅 ---------- */
+window.renderAt=render;window.DUR=DUR;
+window.ready=(async()=>{
+  await Promise.all(['900 40px PretB','800 40px PretX','500 40px PretM','40px Anton'].map(f=>document.fonts.load(f,'상모고등학교SANGMO0123')));
+  await loadPhotos();render(0);return true;
+})();
+const q=new URLSearchParams(location.search);
+if(q.has('render')){document.getElementById('play').remove()}
+else{
+  const au=document.getElementById('au'),pl=document.getElementById('play');let go=false;
+  pl.onclick=async()=>{await window.ready;pl.style.display='none';au.currentTime=0;await au.play().catch(()=>{});go=true};
+  (function loop(){if(go){render(au.currentTime);if(au.ended||au.currentTime>=DUR-.02){go=false;pl.style.display='flex';pl.firstChild.textContent='▶ 다시 재생'}}requestAnimationFrame(loop)})();
+  window.ready.then(()=>render(q.get('t')?+q.get('t'):2));
+}
+</script>
+</body>
+</html>
